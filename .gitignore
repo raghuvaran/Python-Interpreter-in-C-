@@ -1,0 +1,9 @@
+ast.o
+lex.yy.cpp
+lex.yy.o
+main.o
+parse.output
+parse.tab.cpp
+parse.tab.hpp
+parse.tab.o
+run
