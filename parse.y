@@ -174,10 +174,10 @@ print_stmt // Used in: small_stmt
       if(isinf(temp) || temp != temp) std::cout << "ZeroDivisionError" << std::endl;
         else {
           std::cout << temp;
-          if(!(floor(temp) - temp))  std::cout << ".0";
+          if(!(floor(temp) - temp) && isFloat)  std::cout << ".0";
           std::cout << std::endl;
         }
-      err = 0;
+      err = 0; isFloat = 0;
        }
 
     }

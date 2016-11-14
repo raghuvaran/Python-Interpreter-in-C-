@@ -6,6 +6,7 @@
 #  include <stdlib.h>
 #  include <fstream>
 #  include <iomanip>
+#  include <typeinfo>
 #  include "ast.h"
 
 
@@ -22,19 +23,29 @@ double eval(const Ast* a, bool hasFloats = true) {
   case '*': 
   {double left = eval(a->getLeft()),
     right = eval(a->getRight());
-          v = left * right;
+    if((a->getLeft()->getNodetype() == 'N' && a->getRight()->getNodetype() == 'N') || areInt(a,a))
+      v = (int)left * (int)right;
+    else
+      v = left * right;
+          // std::cout << "Type of Left : " << typeid(eval(a->getLeft())).name() << std::endl;
     break;
   }
   case '/':
   {double left = eval(a->getLeft()),
     right = eval(a->getRight());
-       v = left / right;
+    if( ((a->getLeft()->getNodetype() == 'N' && a->getRight()->getNodetype() == 'N') || areInt(a,a)) && eval(a->getRight()))
+      v = (int)left / (int)right;
+    else
+      v = left / right;
        break;
   }
   case 'D': 
   {double left = eval(a->getLeft()),
     right = eval(a->getRight());
-       v = left / right;
+    if(eval(a->getRight()))
+      v = (int)left / (int)right;
+    else
+      v = left / right;
        break;
   }
   case '%': 
@@ -68,7 +79,7 @@ bool areInt(const Ast* a, const Ast* b){
    right = eval(a->getRight()),
    temp;
 
-   return !isinf(left) && !isinf(right) && modf(left,&temp) == 0.0 && modf(right,&temp) == 0.0 && !left && !right;
+   return a->getLeft()->getNodetype() != 'F' && a->getRight()->getNodetype() != 'F' && modf(left,&temp) == 0.0 && modf(right,&temp) == 0.0 && !isinf(left) && !isinf(right);
 }
 
 void treeFree(Ast *a) {
