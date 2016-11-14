@@ -33,8 +33,10 @@ double eval(const Ast* a, bool hasFloats = true) {
   case '/':
   {double left = eval(a->getLeft()),
     right = eval(a->getRight());
-    if( ((a->getLeft()->getNodetype() == 'N' && a->getRight()->getNodetype() == 'N') || areInt(a,a)) && eval(a->getRight()))
-      v = (int)left / (int)right;
+    if( ((a->getLeft()->getNodetype() == 'N' && a->getRight()->getNodetype() == 'N') || areInt(a,a)) && eval(a->getRight())){
+      v = (double)left / right;
+      v = std::floor(v);
+    }
     else
       v = left / right;
        break;
@@ -42,8 +44,10 @@ double eval(const Ast* a, bool hasFloats = true) {
   case 'D': 
   {double left = eval(a->getLeft()),
     right = eval(a->getRight());
-    if(eval(a->getRight()))
-      v = (int)left / (int)right;
+    if(eval(a->getRight())){
+      v = (double)left / right;
+      v = std::floor(v);
+    }
     else
       v = left / right;
        break;
