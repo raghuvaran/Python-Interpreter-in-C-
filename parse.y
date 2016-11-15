@@ -8,6 +8,8 @@
 	extern int yylineno;
 	extern char *yytext;
 	void yyerror (char const *);
+	bool isDetermined(const Ast*);
+	void clearFlags();
 	int err=0, isFloat=0;
 	SymbolTable* SymbolTable::firstInstance = NULL;
 	
@@ -148,30 +150,13 @@ expr_stmt // Used in: small_stmt
 	  }
 	| testlist star_EQUAL
 	  { 
-	    //Copy 'star_EQUAL' into testlist pointer
 
-	    //std::cout << $1->getStr() << std::endl;
-	  SymbolTable* instance = SymbolTable::getInstance();
-
-	  //std::cout << "Before : " << instance->getAst($1->getStr())->getNumber() << std::endl;
-
-	  if(err == 1) std::cout << "ZeroDivisionError" << std::endl;
-      else 
-      if(err == 0 && $2 != NULL){
-      double temp = eval($2, isFloat);
-      if(isinf(temp) || temp != temp) std::cout << "ZeroDivisionError" << std::endl;
-        else {
-          Ast* ast;
-
-          if(!(floor(temp) - temp) && isFloat)  ast = new AstNumber('F',temp);
-          else ast = new AstNumber('N',temp);
-
-          instance->setAstFor($1->getStr(), ast);
-        }
-      err = 0; isFloat = 0;
-       }
-
-	  //std::cout << "After : " << instance->getAst($1->getStr())->getNumber() << std::endl;
+	    if(isDetermined($2)){
+	        double temp = eval($2, isFloat);
+	        SymbolTable* instance = SymbolTable::getInstance();
+	        instance->createAstFor($1->getStr(), temp, isFloat);
+	    	clearFlags();
+	    }
 	  }
 	;
 pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
@@ -181,23 +166,18 @@ pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
 	;
 star_EQUAL // Used in: expr_stmt, star_EQUAL
 	: EQUAL pick_yield_expr_testlist star_EQUAL
-	{ 
-      if(err == 0 && $3 != NULL){
-      double temp = eval($3, isFloat);
-      if(isinf(temp) || temp != temp) std::cout << "ZeroDivisionError" << std::endl;
-        else {
-          Ast* ast;
+	{
 
-          if(!(floor(temp) - temp) && isFloat)  ast = new AstNumber('F',temp);
-          else ast = new AstNumber('N',temp);
-          SymbolTable* instance = SymbolTable::getInstance();
-          instance->setAstFor($2->getStr(), ast);
-        }
-      err = 0; isFloat = 0;
-       }
+	    if(isDetermined($3)){
+	        double temp = eval($3, isFloat);
+	        SymbolTable* instance = SymbolTable::getInstance();
+            instance->createAstFor($2->getStr(), temp, isFloat);
+            clearFlags();
 
+	    }
 
-	  $$ = $2; }
+	  $$ = $2;
+	}
 	| %empty
 	{  $$ = NULL; }
 	;
@@ -230,19 +210,14 @@ augassign // Used in: expr_stmt
 print_stmt // Used in: small_stmt
 	: PRINT opt_test
     {
-
-      if(err == 1) std::cout << "ZeroDivisionError" << std::endl;
-      else 
-      if(err == 0){
-      double temp = eval($2, isFloat);
-      if(isinf(temp) || temp != temp) std::cout << "ZeroDivisionError" << std::endl;
-        else {
+        if(isDetermined($2)){
+          double temp = eval($2, isFloat);
           std::cout << temp;
           if(!(floor(temp) - temp) && isFloat)  std::cout << ".0";
           std::cout << std::endl;
+          clearFlags();
+
         }
-      err = 0; isFloat = 0;
-       }
 
     }
 	| PRINT RIGHTSHIFT test opt_test_2
@@ -808,3 +783,15 @@ void yyerror (char const *s) {
 }
 
 
+bool isDetermined(const Ast* ast){
+	if(err == 0 && ast != NULL){
+      double temp = eval(ast, isFloat);
+      if(isinf(temp) || temp != temp) std::cout << "ZeroDivisionError" << std::endl;
+        else  return true;
+    }
+    return false;
+}
+
+void clearFlags(){
+	err = 0; isFloat = 0;
+}

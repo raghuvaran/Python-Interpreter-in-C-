@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include <utility>
+#include <cmath>
 #include "ast.h"
 
 class SymbolTable
@@ -19,6 +20,14 @@ public:
 			mapOfVars.insert(std::make_pair(str, ast));
 		else
 			mapOfVars.find(str)->second = ast;
+	}
+
+	void createAstFor(std::string str, double val, bool anyFloats){
+		Ast* ast;
+		if(!(std::floor(val) - val) && anyFloats)  ast = new AstNumber('F',val);
+          else ast = new AstNumber('N',val);
+
+        setAstFor(str, ast);
 	}
 
 	Ast* getAst(std::string str){
