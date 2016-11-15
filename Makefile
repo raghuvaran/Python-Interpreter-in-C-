@@ -33,5 +33,5 @@ lex.yy.o: lex.yy.cpp
 	$(CCC) $(CFLAGS) $(LEXFLAGS) -c lex.yy.cpp
 	
 clean:
-	rm -f run *.o parse.tab.cpp lex.yy.cpp
+	rm -f run *.o parse.tab.cpp lex.yy.cpp *.gch
 	rm -f parse.tab.* parse.output
