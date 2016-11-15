@@ -155,6 +155,7 @@ expr_stmt // Used in: small_stmt
 	        double temp = eval($2, isFloat);
 	        SymbolTable* instance = SymbolTable::getInstance();
 	        instance->createAstFor($1->getStr(), temp, isFloat);
+	        treeFree($2);
 	    	clearFlags();
 	    }
 	  }
@@ -172,6 +173,7 @@ star_EQUAL // Used in: expr_stmt, star_EQUAL
 	        double temp = eval($3, isFloat);
 	        SymbolTable* instance = SymbolTable::getInstance();
             instance->createAstFor($2->getStr(), temp, isFloat);
+            treeFree($2);
             clearFlags();
 
 	    }
@@ -215,6 +217,7 @@ print_stmt // Used in: small_stmt
           std::cout << temp;
           if(!(floor(temp) - temp) && isFloat)  std::cout << ".0";
           std::cout << std::endl;
+          treeFree($2);
           clearFlags();
 
         }

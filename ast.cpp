@@ -20,7 +20,7 @@ double eval(const Ast* a, bool hasFloats = true) {
   case 'F': //std::cout << "Returned 'F' : " << (float)a->getNumber() << std::endl;
    return (float)a->getNumber();break;
   case 'C':{
-    
+
    SymbolTable* instance = SymbolTable::getInstance();
    return eval(instance->getAst(a->getStr()));
   }
@@ -108,6 +108,7 @@ void treeFree(Ast *a) {
 
    //no subtree
   case 'K':
+  case 'C':
     delete a;
     break;
   case 'B': treeFree(a->getNode()); delete a; break;
