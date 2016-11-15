@@ -30,7 +30,7 @@
  * https://docs.python.org/2.7/reference/index.html
  */
 #include<iostream>
-#include "ast.h"
+#include "symbolTable.h"
 #include "parse.tab.hpp"
 #include <stack>
 
@@ -252,6 +252,7 @@ comment   #.*
            }
 {name}     { 
              ++identifiers; 
+             yylval.c = strndup(yytext, yyleng) ;
              return NAME; 
            }
 
