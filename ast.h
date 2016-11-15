@@ -2,6 +2,9 @@
 //  From "flex & bison", fb3-1, by John Levine
 //  Adapted by Brian Malloy
 
+#ifndef AST_H
+#define AST_H
+
 #include <string>
 #include <fstream>
 
@@ -17,6 +20,7 @@ public:
   virtual Ast* getRight() const { throw std::string("No Right"); }
   virtual double getNumber() const { throw std::string("No Number"); }
   virtual Ast* getNode() const  { throw std::string("No Node");}
+  virtual std::string getStr() const { throw std::string("No String");}
 private:
   char nodetype;
 };
@@ -43,15 +47,13 @@ private:
   double number;
 };
 
-class AstOnlyNode : public Ast{
+class AstStr : public Ast{
 public:
-    AstOnlyNode(char nodetype, Ast* l) :
-            Ast(nodetype), node(l)
-    {}
-    virtual ~AstOnlyNode() {}
-    virtual Ast* getNode() const  { return node; }
+    AstStr(char nodetype, std::string str) : Ast(nodetype), str(str) {}
+    virtual ~AstStr() {}
+    virtual std::string getStr() const  { return str; }
 private:
-    Ast *node;
+    std::string str;
 };
 
 
@@ -64,3 +66,6 @@ void fillGraphHeader(const Ast*, std::fstream&);
 void getVal(Ast*);
 void printTree(const Ast*, std::ostringstream&) ;
 void makeGraph(const Ast*, std::fstream&);
+
+
+#endif //AST_H
