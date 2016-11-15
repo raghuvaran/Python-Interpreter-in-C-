@@ -2,12 +2,14 @@
 %{
   #include <iostream>
   #include <cmath>
-  #include "ast.h"
+  //#include "ast.h"
+  #include "symbolTable.h"
 	int yylex (void);
 	extern int yylineno;
 	extern char *yytext;
 	void yyerror (char const *);
 	int err=0, isFloat=0;
+	SymbolTable* SymbolTable::firstInstance = NULL;
 	
 %}
 
@@ -24,18 +26,19 @@
 %token DOUBLESTAR DOUBLESTAREQUAL ELIF ELSE ENDMARKER EQEQUAL
 %token EQUAL EXCEPT EXEC FINALLY FOR FROM GLOBAL GREATER GREATEREQUAL GRLT
 %token IF IMPORT IN INDENT IS LAMBDA LBRACE LEFTSHIFT LEFTSHIFTEQUAL LESS
-%token LESSEQUAL LPAR LSQB MINEQUAL MINUS NAME NEWLINE NOT NOTEQUAL 
+%token LESSEQUAL LPAR LSQB MINEQUAL MINUS NEWLINE NOT NOTEQUAL 
 %token OR PASS PERCENT PERCENTEQUAL PLUS PLUSEQUAL PRINT RAISE 
 %token RBRACE RETURN RIGHTSHIFT RIGHTSHIFTEQUAL RPAR RSQB 
 %token SEMI SLASH SLASHEQUAL STAR STAREQUAL
 %token STRING TILDE TRY VBAREQUAL WHILE WITH YIELD
 
-%token<c> NUMBER
+%token<c> NUMBER NAME
 
 %type<i> pick_PLUS_MINUS pick_multop pick_unop
 
 %type<ast> opt_test test or_test and_test not_test comparison expr xor_expr and_expr shift_expr arith_expr term factor power atom pick_yield_expr_testlist_comp opt_yield_test testlist_comp
 
+%type<ast> testlist pick_yield_expr_testlist star_EQUAL
  
 
 
@@ -141,14 +144,37 @@ small_stmt // Used in: simple_stmt, small_stmt_STAR_OR_SEMI
 expr_stmt // Used in: small_stmt
 	: testlist augassign pick_yield_expr_testlist
 	| testlist star_EQUAL
+	  { 
+	    //Copy 'star_EQUAL' into testlist pointer
+
+	    //std::cout << $1->getStr() << std::endl;
+	  SymbolTable* instance = SymbolTable::getInstance();
+
+	  //std::cout << "Before : " << instance->getAst($1->getStr())->getNumber() << std::endl;
+
+	  if($2 != NULL) {
+
+	    if($2->getNodetype() == 'C') {
+	      Ast* ast = new Ast(*(instance->getAst($2->getStr())));
+	      instance->setAstFor($1->getStr(), ast);
+	    }
+	      else instance->setAstFor($1->getStr(), $2);
+	  }
+
+	  //std::cout << "After : " << instance->getAst($1->getStr())->getNumber() << std::endl;
+	  }
 	;
 pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
 	: yield_expr
+	  { err=2; $$ = NULL; }
 	| testlist
+	  {std::cout << "In pick_yield" << std::endl;}
 	;
 star_EQUAL // Used in: expr_stmt, star_EQUAL
 	: EQUAL pick_yield_expr_testlist star_EQUAL
+	{  $$ = $2; }
 	| %empty
+	{  $$ = NULL; }
 	;
 augassign // Used in: expr_stmt
 	: PLUSEQUAL
@@ -167,6 +193,7 @@ augassign // Used in: expr_stmt
 print_stmt // Used in: small_stmt
 	: PRINT opt_test
     {
+
       if(err == 1) std::cout << "ZeroDivisionError" << std::endl;
       else 
       if(err == 0){
@@ -477,8 +504,8 @@ factor // Used in: term, factor, power
 	: pick_unop factor
 	  {
 	  switch($1){
-	    case 0: $$ = new AstNode('P',$2,NULL);    break;
-	    case 1: $$ = new AstNode('M',$2,NULL);   break;
+	    case 0: $$ = new AstNode('P',$2,NULL); break;
+	    case 1: $$ = new AstNode('M',$2,NULL); break;
 	    case 2: $$ = new AstNode('T',$2,NULL); break;
 	    }
 	  }
@@ -505,13 +532,17 @@ atom // Used in: power
 	: LPAR opt_yield_test RPAR
 	  { $$ = $2; }
 	| LSQB opt_listmaker RSQB
-	  { err=2; $$ = NULL; }
+	  { err=2; $$ = NULL; std::cout << "In atom" << std::endl;}
 	| LBRACE opt_dictorsetmaker RBRACE
 	{ err=2; $$ = NULL; }
 	| BACKQUOTE testlist1 BACKQUOTE
 	{ err=2; $$ = NULL; }
 	| NAME
-	{ err=2; $$ = NULL; }
+	  { //err=2; $$ = NULL; 
+	    //char* iden = $1;
+	    $$  = new AstStr('C',$1);
+
+	  }
 	| NUMBER
 	  { 
 	    std::string s = $1;
