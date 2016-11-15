@@ -7,7 +7,8 @@
 #  include <fstream>
 #  include <iomanip>
 #  include <typeinfo>
-#  include "ast.h"
+//#  include "ast.h"
+#  include "symbolTable.h"
 
 
 double eval(const Ast* a, bool hasFloats = true) {
@@ -18,12 +19,17 @@ double eval(const Ast* a, bool hasFloats = true) {
    return (int)a->getNumber();  break;
   case 'F': //std::cout << "Returned 'F' : " << (float)a->getNumber() << std::endl;
    return (float)a->getNumber();break;
+  case 'C':{
+    
+   SymbolTable* instance = SymbolTable::getInstance();
+   return eval(instance->getAst(a->getStr()));
+  }
   case '+': v = eval(a->getLeft()) + eval(a->getRight());break;
   case '-': v = eval(a->getLeft()) - eval(a->getRight());break;
   case '*': 
   {double left = eval(a->getLeft()),
     right = eval(a->getRight());
-    if((a->getLeft()->getNodetype() == 'N' && a->getRight()->getNodetype() == 'N') || areInt(a,a))
+    if(areInt(a,a))
       v = (int)left * (int)right;
     else
       v = left * right;
@@ -33,7 +39,7 @@ double eval(const Ast* a, bool hasFloats = true) {
   case '/':
   {double left = eval(a->getLeft()),
     right = eval(a->getRight());
-    if( ((a->getLeft()->getNodetype() == 'N' && a->getRight()->getNodetype() == 'N') || areInt(a,a)) && eval(a->getRight())){
+    if( (areInt(a,a)) && eval(a->getRight())){
       v = (double)left / right;
       v = std::floor(v);
     }
