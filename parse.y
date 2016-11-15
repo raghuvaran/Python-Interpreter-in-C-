@@ -34,7 +34,7 @@
 
 %token<c> NUMBER NAME
 
-%type<i> pick_PLUS_MINUS pick_multop pick_unop
+%type<i> pick_PLUS_MINUS pick_multop pick_unop augassign
 
 %type<ast> opt_test test or_test and_test not_test comparison expr xor_expr and_expr shift_expr arith_expr term factor power atom pick_yield_expr_testlist_comp opt_yield_test testlist_comp
 
@@ -143,6 +143,9 @@ small_stmt // Used in: simple_stmt, small_stmt_STAR_OR_SEMI
 	;
 expr_stmt // Used in: small_stmt
 	: testlist augassign pick_yield_expr_testlist
+	  {
+
+	  }
 	| testlist star_EQUAL
 	  { 
 	    //Copy 'star_EQUAL' into testlist pointer
@@ -152,14 +155,21 @@ expr_stmt // Used in: small_stmt
 
 	  //std::cout << "Before : " << instance->getAst($1->getStr())->getNumber() << std::endl;
 
-	  if($2 != NULL) {
+	  if(err == 1) std::cout << "ZeroDivisionError" << std::endl;
+      else 
+      if(err == 0 && $2 != NULL){
+      double temp = eval($2, isFloat);
+      if(isinf(temp) || temp != temp) std::cout << "ZeroDivisionError" << std::endl;
+        else {
+          Ast* ast;
 
-	    if($2->getNodetype() == 'C') {
-	      Ast* ast = new Ast(*(instance->getAst($2->getStr())));
-	      instance->setAstFor($1->getStr(), ast);
-	    }
-	      else instance->setAstFor($1->getStr(), $2);
-	  }
+          if(!(floor(temp) - temp) && isFloat)  ast = new AstNumber('F',temp);
+          else ast = new AstNumber('N',temp);
+
+          instance->setAstFor($1->getStr(), ast);
+        }
+      err = 0; isFloat = 0;
+       }
 
 	  //std::cout << "After : " << instance->getAst($1->getStr())->getNumber() << std::endl;
 	  }
@@ -168,27 +178,54 @@ pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
 	: yield_expr
 	  { err=2; $$ = NULL; }
 	| testlist
-	  {std::cout << "In pick_yield" << std::endl;}
 	;
 star_EQUAL // Used in: expr_stmt, star_EQUAL
 	: EQUAL pick_yield_expr_testlist star_EQUAL
-	{  $$ = $2; }
+	{ 
+      if(err == 0 && $3 != NULL){
+      double temp = eval($3, isFloat);
+      if(isinf(temp) || temp != temp) std::cout << "ZeroDivisionError" << std::endl;
+        else {
+          Ast* ast;
+
+          if(!(floor(temp) - temp) && isFloat)  ast = new AstNumber('F',temp);
+          else ast = new AstNumber('N',temp);
+          SymbolTable* instance = SymbolTable::getInstance();
+          instance->setAstFor($2->getStr(), ast);
+        }
+      err = 0; isFloat = 0;
+       }
+
+
+	  $$ = $2; }
 	| %empty
 	{  $$ = NULL; }
 	;
 augassign // Used in: expr_stmt
 	: PLUSEQUAL
+	 { $$ = 0; }
 	| MINEQUAL
+	 { $$ = 1; }
 	| STAREQUAL
+	 { $$ = 2; }
 	| SLASHEQUAL
+	 { $$ = 3; }
 	| PERCENTEQUAL
+	 { $$ = 4; }
 	| AMPEREQUAL
+	 { $$ = -1; }
 	| VBAREQUAL
+	 { $$ = -1; }
 	| CIRCUMFLEXEQUAL
+	 { $$ = -1; }
 	| LEFTSHIFTEQUAL
+	 { $$ = -1; }
 	| RIGHTSHIFTEQUAL
+	 { $$ = -1; }
 	| DOUBLESTAREQUAL
+	 { $$ = -1; }
 	| DOUBLESLASHEQUAL
+	 { $$ = 5; }
 	;
 print_stmt // Used in: small_stmt
 	: PRINT opt_test
@@ -532,7 +569,7 @@ atom // Used in: power
 	: LPAR opt_yield_test RPAR
 	  { $$ = $2; }
 	| LSQB opt_listmaker RSQB
-	  { err=2; $$ = NULL; std::cout << "In atom" << std::endl;}
+	  { err=2; $$ = NULL; }
 	| LBRACE opt_dictorsetmaker RBRACE
 	{ err=2; $$ = NULL; }
 	| BACKQUOTE testlist1 BACKQUOTE
