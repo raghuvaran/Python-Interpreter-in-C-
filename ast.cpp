@@ -124,20 +124,25 @@ void treeFree(Ast *a) {
 bool anyFloats(const Ast* ast){
   
   if(ast == NULL) return false;
-  if(ast->getNodetype() == 'F') return true;
-  if(ast->getNodetype() == 'N') return false;
-  if(ast->getNodetype() == 'C'){
 
-   SymbolTable* instance = SymbolTable::getInstance();
+  switch(ast->getNodetype()){
+
+    case 'F': return true;
+    case 'N': return false;
+    case 'C': {
+      SymbolTable* instance = SymbolTable::getInstance();
    return (instance->getAst(ast->getStr())->getNodetype() == 'F');
-
+    }
+    case '^': {
+      if(eval(ast->getRight()) < 0 ) return true;
+    }
+    default : {
+      if(anyFloats(ast->getLeft()) || anyFloats(ast->getRight()) ) return true;
+    }
   }
-  if(anyFloats(ast->getLeft()) || anyFloats(ast->getRight()) ) return true;
 
   return false;
 }
-
-
 
 
 
