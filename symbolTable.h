@@ -24,7 +24,8 @@ public:
 
 	void createAstFor(std::string str, double val, bool anyFloats){
 		Ast* ast;
-		if(!(std::floor(val) - val) && anyFloats)  ast = new AstNumber('F',val);
+		//Ast* ast2 = new AstNumber('F',4.4);
+		if((std::floor(val) - val) || anyFloats)  ast = new AstNumber('F',val);
           else ast = new AstNumber('N',val);
 
         setAstFor(str, ast);
@@ -39,6 +40,14 @@ public:
 			Ast* ast = new AstNumber('N',0);
 			setAstFor(str, ast);
 			return ast;
+		}
+	}
+
+	void freeMap(){
+		std::map<std::string, Ast*>::iterator it = mapOfVars.begin();
+		while(it != mapOfVars.end()){
+			delete it->second;
+			mapOfVars.erase(it);
 		}
 	}
 private:

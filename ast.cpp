@@ -11,7 +11,7 @@
 #  include "symbolTable.h"
 
 
-double eval(const Ast* a, bool hasFloats = true) {
+double eval(const Ast* a) {
   // std::cout << "Called for : " << a->getNodetype() << std::endl;
   double v = 0;
   switch( a->getNodetype() ) {
@@ -99,15 +99,20 @@ void treeFree(Ast *a) {
   case '-':
   case '*':
   case '/':
-  case 'P':
+  case 'D':
+  case '%':
+  case '^':
     treeFree(a->getRight());
 
    // one subtrees
+  case 'P':
   case 'M':
+  case 'T':
     treeFree(a->getLeft());
 
    //no subtree
-  case 'K':
+  case 'N':
+  case 'F':
   case 'C':
     delete a;
     break;
@@ -116,6 +121,23 @@ void treeFree(Ast *a) {
                 << a->getNodetype() << std::endl;;
   }
 }
+
+bool anyFloats(const Ast* ast){
+  
+  if(ast == NULL) return false;
+  if(ast->getNodetype() == 'F') return true;
+  if(ast->getNodetype() == 'N') return false;
+  if(ast->getNodetype() == 'C'){
+
+   SymbolTable* instance = SymbolTable::getInstance();
+   return (instance->getAst(ast->getStr())->getNodetype() == 'F');
+
+  }
+  if(anyFloats(ast->getLeft()) || anyFloats(ast->getRight()) ) return true;
+
+  return false;
+}
+
 
 
 

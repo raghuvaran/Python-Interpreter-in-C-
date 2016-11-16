@@ -57,9 +57,10 @@ private:
 };
 
 
-double eval(const Ast*, bool);   // Evaluate an AST
+double eval(const Ast*);   // Evaluate an AST
 void treeFree(Ast*); // delete and free an AST 
 bool areInt(const Ast*, const Ast*);
+bool anyFloats(const Ast*);
 
 void buildTree(Ast*,int);
 void fillGraphHeader(const Ast*, std::fstream&);

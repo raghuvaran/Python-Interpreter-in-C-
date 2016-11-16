@@ -10,7 +10,8 @@
 	void yyerror (char const *);
 	bool isDetermined(const Ast*);
 	void clearFlags();
-	int err=0, isFloat=0;
+	void updateTable(const Ast*, Ast*);
+	int err=0;
 	SymbolTable* SymbolTable::firstInstance = NULL;
 	
 %}
@@ -146,18 +147,38 @@ small_stmt // Used in: simple_stmt, small_stmt_STAR_OR_SEMI
 expr_stmt // Used in: small_stmt
 	: testlist augassign pick_yield_expr_testlist
 	  {
+	  	if(isDetermined($3)){
+	  		Ast* ast;
+	  		switch($2){
+	  		case 0: ast = new AstNode('+',$1,$3);
+	  			updateTable($1, ast); break;
+  			case 1: ast = new AstNode('-',$1,$3);
+	  			updateTable($1, ast); break;
+	  		case 2: ast = new AstNode('*',$1,$3);
+	  			updateTable($1, ast); break;
+  			case 3: ast = new AstNode('/',$1,$3);
+	  			updateTable($1, ast); break;
+	  		case 4: ast = new AstNode('%',$1,$3);
+	  			updateTable($1, ast); break;
+  			case 5: ast = new AstNode('D',$1,$3);
+	  			updateTable($1, ast); break;
+	  		}
 
+
+
+	  	}
+	  	clearFlags();
 	  }
 	| testlist star_EQUAL
 	  { 
 
 	    if(isDetermined($2)){
-	        double temp = eval($2, isFloat);
+	        double temp = eval($2);
 	        SymbolTable* instance = SymbolTable::getInstance();
-	        instance->createAstFor($1->getStr(), temp, isFloat);
+	        instance->createAstFor($1->getStr(), temp, anyFloats($2));
 	        treeFree($2);
-	    	clearFlags();
 	    }
+	    clearFlags();
 	  }
 	;
 pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
@@ -170,10 +191,10 @@ star_EQUAL // Used in: expr_stmt, star_EQUAL
 	{
 
 	    if(isDetermined($3)){
-	        double temp = eval($3, isFloat);
+	        double temp = eval($3);
 	        SymbolTable* instance = SymbolTable::getInstance();
-            instance->createAstFor($2->getStr(), temp, isFloat);
-            treeFree($2);
+            instance->createAstFor($2->getStr(), temp, anyFloats($3));
+            //treeFree($2);
             clearFlags();
 
 	    }
@@ -213,14 +234,14 @@ print_stmt // Used in: small_stmt
 	: PRINT opt_test
     {
         if(isDetermined($2)){
-          double temp = eval($2, isFloat);
+          //std::cout << "Any floats : " << anyFloats($2) << std::endl;
+          double temp = eval($2);
           std::cout << temp;
-          if(!(floor(temp) - temp) && isFloat)  std::cout << ".0";
+          if(!(floor(temp) - temp) && anyFloats($2))  std::cout << ".0";
           std::cout << std::endl;
           treeFree($2);
-          clearFlags();
-
         }
+        clearFlags();
 
     }
 	| PRINT RIGHTSHIFT test opt_test_2
@@ -554,7 +575,10 @@ atom // Used in: power
 	{ err=2; $$ = NULL; }
 	| NAME
 	  { //err=2; $$ = NULL; 
+	  	
 	    //char* iden = $1;
+	    //std::cout << iden << std::endl;
+
 	    $$  = new AstStr('C',$1);
 
 	  }
@@ -567,7 +591,6 @@ atom // Used in: power
 	    if(b){
 	      float f = std::atof($1);
 	      $$ = new AstNumber('F',f);
-	      isFloat = 1;
 	    }else{
 	     int i = std::atof($1);
 	      $$ = new AstNumber('N',i);
@@ -788,7 +811,7 @@ void yyerror (char const *s) {
 
 bool isDetermined(const Ast* ast){
 	if(err == 0 && ast != NULL){
-      double temp = eval(ast, isFloat);
+      double temp = eval(ast);
       if(isinf(temp) || temp != temp) std::cout << "ZeroDivisionError" << std::endl;
         else  return true;
     }
@@ -796,5 +819,12 @@ bool isDetermined(const Ast* ast){
 }
 
 void clearFlags(){
-	err = 0; isFloat = 0;
+	err = 0;
+}
+
+void updateTable(const Ast* identifier, Ast* ast){
+	double temp = eval(ast);
+    SymbolTable* instance = SymbolTable::getInstance();
+    instance->createAstFor(identifier->getStr(), temp, anyFloats(ast));
+    treeFree(ast);
 }
