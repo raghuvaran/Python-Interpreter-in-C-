@@ -85,11 +85,10 @@ double eval(const Ast* a) {
 }
 
 bool areInt(const Ast* a, const Ast* b){
-  double left = eval(a->getLeft()),
-   right = eval(a->getRight()),
-   temp;
 
-   return a->getLeft()->getNodetype() != 'F' && a->getRight()->getNodetype() != 'F' && modf(left,&temp) == 0.0 && modf(right,&temp) == 0.0 && !isinf(left) && !isinf(right);
+   return !anyFloats(a) && !anyFloats(b);
+
+   // return a->getLeft()->getNodetype() != 'F' && a->getRight()->getNodetype() != 'F' && modf(left,&temp) == 0.0 && modf(right,&temp) == 0.0 && !isinf(left) && !isinf(right);
 }
 
 void treeFree(Ast *a) {
