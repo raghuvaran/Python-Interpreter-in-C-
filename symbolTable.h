@@ -50,6 +50,7 @@ public:
 			mapOfVars.erase(it);
 			it++;
 		}
+		delete firstInstance;
 	}
 private:
 	std::map<std::string, Ast*> mapOfVars;
