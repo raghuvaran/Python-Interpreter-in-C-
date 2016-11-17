@@ -37,7 +37,7 @@ double eval(const Ast* a) {
         }
         case '/':
         {double left = eval(a->getLeft()), right = eval(a->getRight());
-            if( (areInt(a)) && eval(a->getRight())){
+            if( (areInt(a)) && right){
               //std::cout << "Right operand is" << eval(a->getRight()) << std::endl;
                 v = (double)left / right;
                 v = std::floor(v);
@@ -48,7 +48,7 @@ double eval(const Ast* a) {
         }
         case 'D':
         {double left = eval(a->getLeft()), right = eval(a->getRight());
-            if(eval(a->getRight())){
+            if(right){
                 v = (double)left / right;
                 v = std::floor(v);
             }
