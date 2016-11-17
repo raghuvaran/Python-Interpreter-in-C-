@@ -574,21 +574,14 @@ atom // Used in: power
 	| BACKQUOTE testlist1 BACKQUOTE
 	{ err=2; $$ = NULL; }
 	| NAME
-	  { //err=2; $$ = NULL; 
-	  	
-	    //char* iden = $1;
-	    //std::cout << iden << std::endl;
-
+	  { 
 	    $$  = new AstStr('C',$1);
-
 	  }
 	| NUMBER
 	  { 
 	    std::string s = $1;
-	    bool b;
-	    if(s.find('.')!=std::string::npos) b = true; else b = false;
 
-	    if(b){
+	    if(s.find('.')!=std::string::npos){
 	      float f = std::atof($1);
 	      $$ = new AstNumber('F',f);
 	    }else{
