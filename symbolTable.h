@@ -48,6 +48,7 @@ public:
 		while(it != mapOfVars.end()){
 			delete it->second;
 			mapOfVars.erase(it);
+			it++;
 		}
 	}
 private:
