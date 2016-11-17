@@ -59,7 +59,7 @@ private:
 
 double eval(const Ast*);   // Evaluate an AST
 void treeFree(Ast*); // delete and free an AST 
-bool areInt(const Ast*, const Ast*);
+bool areInt(const Ast*);
 bool anyFloats(const Ast*);
 
 void buildTree(Ast*,int);
