@@ -8,7 +8,7 @@ int main() {
     int returnCode = yyparse();
     std::cout << std::endl;
     SymbolTable* instance = SymbolTable::getInstance();
-            instance->freeMap();
+    instance->freeMap();
     return returnCode;
   }
   catch (const std::string& msg) {

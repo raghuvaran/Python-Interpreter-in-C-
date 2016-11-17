@@ -247,12 +247,12 @@ comment   #.*
 {number}   { 
              ++numbers; 
              //yylval.d = atof(yytext);
-             yylval.c = strndup(yytext, yyleng) ;
+             yylval.c = yytext ;
              return NUMBER; 
            }
 {name}     { 
              ++identifiers; 
-             yylval.c = strndup(yytext, yyleng) ;
+             yylval.c = yytext ;
              return NAME; 
            }
 

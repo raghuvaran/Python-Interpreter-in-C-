@@ -19,6 +19,7 @@ public:
 		if(mapOfVars.find(str) == mapOfVars.end())
 			mapOfVars.insert(std::make_pair(str, ast));
 		else
+			delete mapOfVars.find(str)->second;
 			mapOfVars.find(str)->second = ast;
 	}
 
