@@ -19,6 +19,7 @@ public:
 		if(mapOfVars.find(str) == mapOfVars.end())
 			mapOfVars.insert(std::make_pair(str, ast));
 		else
+			delete mapOfVars.find(str)->second;
 			mapOfVars.find(str)->second = ast;
 	}
 
@@ -49,6 +50,7 @@ public:
 			delete it->second;
 			mapOfVars.erase(it);
 		}
+		delete firstInstance;
 	}
 private:
 	std::map<std::string, Ast*> mapOfVars;
