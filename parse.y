@@ -167,6 +167,7 @@ expr_stmt // Used in: small_stmt
 
 
 	  	}
+	//	if(err != 2) treeFree($1);
 	  	clearFlags();
 	  }
 	| testlist star_EQUAL
@@ -178,6 +179,7 @@ expr_stmt // Used in: small_stmt
 	        instance->createAstFor($1->getStr(), temp, anyFloats($2));
 	        treeFree($2);
 	    }
+	    if(err != 2) treeFree($1);
 	    clearFlags();
 	  }
 	;
@@ -193,9 +195,9 @@ star_EQUAL // Used in: expr_stmt, star_EQUAL
 	    if(isDetermined($3)){
 	        double temp = eval($3);
 	        SymbolTable* instance = SymbolTable::getInstance();
-            instance->createAstFor($2->getStr(), temp, anyFloats($3));
-            //treeFree($2);
-            clearFlags();
+            	instance->createAstFor($2->getStr(), temp, anyFloats($3));
+	        treeFree($3);
+        	clearFlags();
 
 	    }
 
