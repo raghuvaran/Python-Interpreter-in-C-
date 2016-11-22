@@ -576,7 +576,7 @@ atom // Used in: power
 	| NAME
 	  { 
 	    $$  = new AstStr('C',$1);
-	    delete $1;
+	    free($1);
 	  }
 	| NUMBER
 	  { 
@@ -589,7 +589,7 @@ atom // Used in: power
 	     int i = std::atof($1);
 	      $$ = new AstNumber('N',i);
 	    }
-	    delete $1;
+	    free($1);
 	  }
 	| plus_STRING
 	{ err=2; $$ = NULL; }
