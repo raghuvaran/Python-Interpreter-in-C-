@@ -195,7 +195,7 @@ star_EQUAL // Used in: expr_stmt, star_EQUAL
 	    if(isDetermined($3)){
 	        double temp = eval($3);
 	        SymbolTable* instance = SymbolTable::getInstance();
-            	instance->createAstFor($2->getStr(), temp, anyFloats($3));
+            instance->createAstFor($2->getStr(), temp, anyFloats($3));
 	        treeFree($3);
         	clearFlags();
 
