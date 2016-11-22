@@ -8,7 +8,7 @@
 	extern int yylineno;
 	extern char *yytext;
 	void yyerror (char const *);
-	bool isDetermined(const Ast*);
+	bool isDetermined(Ast*);
 	void clearFlags();
 	void updateTable(const Ast*, Ast*);
 	int err=0;
@@ -806,10 +806,13 @@ void yyerror (char const *s) {
 }
 
 
-bool isDetermined(const Ast* ast){
+bool isDetermined(Ast* ast){
 	if(err == 0 && ast != NULL){
       double temp = eval(ast);
-      if(isinf(temp) || temp != temp) std::cout << "ZeroDivisionError" << std::endl;
+      if(isinf(temp) || temp != temp) {
+	std::cout << "ZeroDivisionError" << std::endl;
+	treeFree(ast);
+	}
         else  return true;
     }
     return false;
