@@ -36,6 +36,6 @@ for x in files:
         print "\tTEST CASE FAILED\033[1;31;5m", x, "\033[0;0m"
       else :
         print "testcase:\033[1;32;5m", x, "\033[0;0mpassed"
-        os.system("cat -n "+testcase)
+        # os.system("cat -n "+testcase)
 
 
