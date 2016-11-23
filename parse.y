@@ -71,6 +71,7 @@ file_input // Used in: start
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	: NEWLINE
 	| stmt
+	{ printf("Evaluating stmt\n"); }
 	;
 star_NEWLINE_stmt // Used in: file_input, star_NEWLINE_stmt
 	: pick_NEWLINE_stmt star_NEWLINE_stmt
@@ -94,6 +95,7 @@ decorated // Used in: compound_stmt
 	;
 funcdef // Used in: decorated, compound_stmt
 	: DEF NAME parameters COLON suite
+	{ printf("End of function %s\n", $2); }
 	;
 parameters // Used in: funcdef
 	: LPAR varargslist RPAR
@@ -128,6 +130,7 @@ fplist // Used in: fpdef
 	;
 stmt // Used in: pick_NEWLINE_stmt, plus_stmt
 	: simple_stmt
+		{ printf("Evaluating simple_stmt\n"); }
 	| compound_stmt
 	;
 simple_stmt // Used in: single_input, stmt, suite
@@ -135,7 +138,9 @@ simple_stmt // Used in: single_input, stmt, suite
 	;
 small_stmt // Used in: simple_stmt, small_stmt_STAR_OR_SEMI
 	: expr_stmt
+		{ printf("Evaluating expr_stmt\n"); }
 	| print_stmt
+		{ printf("Evaluating print_stmt\n"); }
 	| del_stmt
 	| pass_stmt
 	| flow_stmt
@@ -418,7 +423,9 @@ opt_AS_COMMA // Used in: except_clause
 suite // Used in: funcdef, if_stmt, star_ELIF, while_stmt, for_stmt, 
       // try_stmt, plus_except, opt_ELSE, opt_FINALLY, with_stmt, classdef
 	: simple_stmt
+		{ printf("Compressing simple_stmt to suite\n"); }
 	| NEWLINE INDENT plus_stmt DEDENT
+		{ printf("Got content between Indents\n"); }
 	;
 plus_stmt // Used in: suite, plus_stmt
 	: stmt plus_stmt
