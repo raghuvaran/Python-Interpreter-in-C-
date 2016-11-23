@@ -14,14 +14,14 @@ run: $(OBJS)
 main.o: main.cpp parse.y scan.l parse.tab.cpp lex.yy.cpp
 	$(CCC) $(CFLAGS) -c main.cpp
 
-parse.tab.cpp: parse.y ast.h
+parse.tab.cpp: parse.y model/ast.h
 	$(YACC) $(YACCDEBUG) -oparse.tab.cpp -d parse.y
 
 tree.o: tree.cpp tree.h
 	$(CCC) $(CFLAGS) -c tree.cpp
 
-ast.o: ast.cpp ast.h
-	$(CCC) $(CFLAGS) -c ast.cpp
+ast.o: model/ast.cpp model/ast.h
+	$(CCC) $(CFLAGS) -c model/ast.cpp
 
 parse.tab.o: parse.tab.cpp
 	$(CCC) $(CFLAGS) -c parse.tab.cpp
