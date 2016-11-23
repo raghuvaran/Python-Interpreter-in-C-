@@ -62,11 +62,6 @@ void treeFree(Ast*); // delete and free an AST
 bool areInt(const Ast*);
 bool anyFloats(const Ast*);
 
-void buildTree(Ast*,int);
-void fillGraphHeader(const Ast*, std::fstream&);
-void getVal(Ast*);
-void printTree(const Ast*, std::ostringstream&) ;
-void makeGraph(const Ast*, std::fstream&);
 
 
 #endif //AST_H
