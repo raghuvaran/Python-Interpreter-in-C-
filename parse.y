@@ -3,7 +3,7 @@
   #include <iostream>
   #include <cmath>
   //#include "ast.h"
-  #include "symbolTable.h"
+  #include "model/symbolTable.h"
 	int yylex (void);
 	extern int yylineno;
 	extern char *yytext;

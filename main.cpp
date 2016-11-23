@@ -1,5 +1,5 @@
 #include <iostream>
-#include "symbolTable.h"
+#include "model/symbolTable.h"
 extern int yyparse();
 
 int main() {

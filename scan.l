@@ -30,7 +30,7 @@
  * https://docs.python.org/2.7/reference/index.html
  */
 #include<iostream>
-#include "symbolTable.h"
+#include "model/symbolTable.h"
 #include "parse.tab.hpp"
 #include <stack>
 
