@@ -6,7 +6,7 @@ LEXFLAGS = -Wno-unused
 
 YACCDEBUG = -vtd
 
-OBJS = main.o ast.o parse.tab.o lex.yy.o
+OBJS = main.o ast.o parse.tab.o lex.yy.o manager.o
 
 run: $(OBJS)
 	$(CCC) $(CFLAGS) -o run $(OBJS)
@@ -17,8 +17,8 @@ main.o: main.cpp parse.y scan.l parse.tab.cpp lex.yy.cpp
 parse.tab.cpp: parse.y model/ast.h
 	$(YACC) $(YACCDEBUG) -oparse.tab.cpp -d parse.y
 
-tree.o: tree.cpp tree.h
-	$(CCC) $(CFLAGS) -c tree.cpp
+manager.o: controller/manager.cpp controller/manager.h
+	$(CCC) $(CFLAGS) -c controller/manager.cpp
 
 ast.o: model/ast.cpp model/ast.h
 	$(CCC) $(CFLAGS) -c model/ast.cpp
