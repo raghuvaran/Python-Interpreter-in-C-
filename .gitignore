@@ -1,4 +1,5 @@
 ast.o
+manager.o
 lex.yy.cpp
 lex.yy.o
 main.o
