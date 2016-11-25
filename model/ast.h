@@ -21,6 +21,7 @@ public:
   virtual double getNumber() const { throw std::string("No Number"); }
   virtual Ast* getNode() const  { throw std::string("No Node");}
   virtual std::string getStr() const { throw std::string("No String");}
+  virtual double eval() const { throw std::string("Nothing to evaluate");}
 private:
   char nodetype;
 };
@@ -33,7 +34,7 @@ public:
   virtual ~AstNode() {}
   virtual Ast* getLeft() const  { return left; }
   virtual Ast* getRight() const { return right; }
-private:
+protected:
   Ast *left;
   Ast *right;
 };
@@ -43,6 +44,7 @@ public:
   AstNumber(char nodetype, double n) : Ast(nodetype), number(n) {} 
   virtual ~AstNumber() {}
   virtual double getNumber() const { return number; }
+  virtual double eval() const { return number; }
 private:
   double number;
 };
@@ -52,8 +54,29 @@ public:
     AstStr(char nodetype, std::string str) : Ast(nodetype), str(str) {}
     virtual ~AstStr() {}
     virtual std::string getStr() const  { return str; }
+    virtual double eval() const;
 private:
     std::string str;
+};
+
+class BinaryAddNode : public AstNode{
+public:
+  BinaryAddNode(Ast* l, Ast* r) : AstNode('B', l, r) {}
+  virtual double eval() const { 
+    
+    // printf("Left : %f, Right : %f",left->eval(),right->eval());
+    return ((left->eval()) + (right->eval())); 
+  }
+};
+
+class PrintNode : public Ast{
+public:
+    PrintNode();
+    // virtual double eval() {
+    //     return 0;
+    // }
+private:
+  Ast *ast;
 };
 
 

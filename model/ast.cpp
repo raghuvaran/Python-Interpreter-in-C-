@@ -10,21 +10,29 @@
 //#  include "ast.h"
 #  include "symbolTable.h"
 
+double AstStr::eval() const {
+      SymbolTable* instance = SymbolTable::getInstance();
+            return instance->getAst(str)->getNumber();//eval();
+    }
+
 
 double eval(const Ast* a) {
-    // std::cout << "Called for : " << a->getNodetype() << std::endl;
+     // std::cout << "Called for : " << a->getNodetype() << std::endl;
     double v = 0;
     switch( a->getNodetype() ) {
         case 'N': //std::cout << "Returned 'N' : " << (int)a->getNumber() << std::endl;
-            return (int)a->getNumber();  break;
+            // return (int)a->getNumber();  break;
         case 'F': //std::cout << "Returned 'F' : " << (float)a->getNumber() << std::endl;
-            return (float)a->getNumber();break;
+            return a->eval();break;
         case 'C':{
 
-            SymbolTable* instance = SymbolTable::getInstance();
-            return eval(instance->getAst(a->getStr()));
+            // SymbolTable* instance = SymbolTable::getInstance();
+            // return eval(instance->getAst(a->getStr()));
+            return a->eval();
         }
-        case '+': v = eval(a->getLeft()) + eval(a->getRight());break;
+        case '+': 
+        v = eval(a->getLeft()) + eval(a->getRight()); break;
+            // return a->eval();
         case '-': v = eval(a->getLeft()) - eval(a->getRight());break;
         case '*':
         {double left = eval(a->getLeft()), right = eval(a->getRight());
@@ -43,6 +51,7 @@ double eval(const Ast* a) {
                 v = std::floor(v);
             }
             else
+                // std::cout << "In else \n" ;
                 v = left / right;
             break;
         }
@@ -76,7 +85,6 @@ double eval(const Ast* a) {
             //TILDE
         case 'T': v = (-1) * ( 1+ eval(a->getLeft()));
             if(!v) v= v*v; break;
-        case 'B': v = eval(a->getNode());break;
         default: std::cout << "internal error: bad node "
                            << a->getNodetype() << std::endl;;
     }
@@ -116,7 +124,7 @@ void treeFree(Ast *a) {
         case 'C':
             delete a;
             break;
-        case 'B': treeFree(a->getNode()); delete a; break;
+        // case 'B': treeFree(a->getNode()); delete a; break;
         default: std::cout << "internal error: bad node "
                            << a->getNodetype() << std::endl;;
     }
