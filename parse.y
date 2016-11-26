@@ -41,7 +41,7 @@
 
 %type<ast> opt_test test or_test and_test not_test comparison expr xor_expr and_expr shift_expr arith_expr term factor power atom pick_yield_expr_testlist_comp opt_yield_test testlist_comp
 
-%type<ast> testlist pick_yield_expr_testlist star_EQUAL
+%type<ast> testlist pick_yield_expr_testlist star_EQUAL print_stmt expr_stmt small_stmt simple_stmt
  
 
 
@@ -133,6 +133,11 @@ fplist // Used in: fpdef
 stmt // Used in: pick_NEWLINE_stmt, plus_stmt
 	: simple_stmt
 		{// printf("Evaluating simple_stmt\n"); 
+		    if(err == 0 && $1 != NULL){
+		 	$1->eval();
+		 	//treeFree($1);
+		 }
+		 clearFlags();
 		}
 	| compound_stmt
 	;
@@ -142,55 +147,54 @@ simple_stmt // Used in: single_input, stmt, suite
 small_stmt // Used in: simple_stmt, small_stmt_STAR_OR_SEMI
 	: expr_stmt
 		{// printf("Evaluating expr_stmt\n"); 
+
 		}
 	| print_stmt
 		{// printf("Evaluating print_stmt\n"); 
+
 		}
 	| del_stmt
+	{ $$ = NULL; }
 	| pass_stmt
+	{ $$ = NULL; }
 	| flow_stmt
+	{ $$ = NULL; }
 	| import_stmt
+	{ $$ = NULL; }
 	| global_stmt
+	{ $$ = NULL; }
 	| exec_stmt
+	{ $$ = NULL; }
 	| assert_stmt
+	{ $$ = NULL; }
 	;
 expr_stmt // Used in: small_stmt
 	: testlist augassign pick_yield_expr_testlist
 	  {
-	  	if(isDetermined($3)){
+	  	if(err == 0 && $3 != NULL) {
 	  		Ast* ast;
 	  		switch($2){
-	  		case 0: ast = new AstNode('+',$1,$3);//BinaryAddNode($1,$3);
-	  			updateTable($1, ast); break;
-  			case 1: ast = new AstNode('-',$1,$3);
-	  			updateTable($1, ast); break;
-	  		case 2: ast = new AstNode('*',$1,$3);
-	  			updateTable($1, ast); break;
-  			case 3: ast = new AstNode('/',$1,$3);
-	  			updateTable($1, ast); break;
-	  		case 4: ast = new AstNode('%',$1,$3);
-	  			updateTable($1, ast); break;
-  			case 5: ast = new AstNode('D',$1,$3);
-	  			updateTable($1, ast); break;
+	  		case 0: ast = new BinaryAddNode($1,$3);//BinaryAddNode($1,$3); break;
+  			case 1: ast = new BinaryMinNode($1,$3); break;
+	  		case 2: ast = new BinaryMulNode($1,$3); break;
+  			case 3: ast = new BinaryDivNode($1,$3); break;
+	  		case 4: ast = new BinaryModNode($1,$3); break;
+  			case 5: ast = new BinaryDDivNode($1,$3);break;
+	  		default: ast = NULL;
 	  		}
 
-
-
+	  		$$ = (ast != NULL) ? new ExprNode($1, ast) : NULL;
 	  	}
 	//	if(err != 2) treeFree($1);
-	  	clearFlags();
+	  	//clearFlags();
 	  }
 	| testlist star_EQUAL
 	  { 
-
-	    if(isDetermined($2)){
-	        double temp = eval($2);
-	        SymbolTable* instance = SymbolTable::getInstance();
-	        instance->createAstFor($1->getStr(), temp, anyFloats($2));
-	        treeFree($2);
-	    }
-	    if(err != 2) treeFree($1);
-	    clearFlags();
+	         $$ = (err == 0 && $2 != NULL) ?  new ExprNode($1,$2) : NULL;
+	        //treeFree($2);
+	    
+	    //if(err != 2) treeFree($1);
+	    //clearFlags();
 	  }
 	;
 pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
@@ -202,14 +206,13 @@ star_EQUAL // Used in: expr_stmt, star_EQUAL
 	: EQUAL pick_yield_expr_testlist star_EQUAL
 	{
 
-	    if(isDetermined($3)){
-	        double temp = eval($3);
-	        SymbolTable* instance = SymbolTable::getInstance();
-            instance->createAstFor($2->getStr(), temp, anyFloats($3));
-	        treeFree($3);
-        	clearFlags();
-
-	    }
+	//    if(isDetermined($3)){
+	//        double temp = ($3->eval());
+	//        SymbolTable* instance = SymbolTable::getInstance();
+    //        instance->createAstFor($2->getStr(), temp, anyFloats($3));
+	//        treeFree($3);
+    //    	clearFlags();
+	//    }
 
 	  $$ = $2;
 	}
@@ -245,18 +248,13 @@ augassign // Used in: expr_stmt
 print_stmt // Used in: small_stmt
 	: PRINT opt_test
     {
-        if(isDetermined($2)){
-          //std::cout << "Any floats : " << anyFloats($2) << std::endl;
-          double temp = eval($2);
-          std::cout << temp;
-          if(!(floor(temp) - temp) && anyFloats($2))  std::cout << ".0";
-          std::cout << std::endl;
-          treeFree($2);
-        }
-        clearFlags();
+          $$ = (err == 0 && $2 != NULL) ? new PrintNode($2) : NULL;
+          //treeFree($2);
+        //clearFlags();
 
     }
 	| PRINT RIGHTSHIFT test opt_test_2
+	{ $$ = NULL;}
 	;
 opt_test // Used in: print_stmt
 	: test star_COMMA_test
@@ -519,7 +517,10 @@ pick_LEFTSHIFT_RIGHTSHIFT // Used in: shift_expr
 arith_expr // Used in: shift_expr, arith_expr
 	: term
 	| arith_expr pick_PLUS_MINUS term
-	  { $$=$2?(new AstNode('-',$1,$3)):(new AstNode('+',$1,$3));//BinaryAddNode($1,$3)); 
+	  { if($2)
+	  		$$ = (new BinaryMinNode($1,$3));
+	  	else
+	  		$$ = (new BinaryAddNode($1,$3));
 	  }
 	;
 pick_PLUS_MINUS // Used in: arith_expr
@@ -533,13 +534,13 @@ term // Used in: arith_expr, term
 	| term pick_multop factor
 	  { switch($2){
 	    case 0: 
-	      $$ = new AstNode('*',$1,$3); break;
+	      $$ = new BinaryMulNode($1,$3); break;
 	    case 1:
-	      $$ = new AstNode('/',$1,$3); break;
+	      $$ = new BinaryDivNode($1,$3); break;
 	    case 2:
-	      $$ = new AstNode('D',$1,$3); break;
+	      $$ = new BinaryDDivNode($1,$3); break;
 	    case 3:
-	      $$ = new AstNode('%',$1,$3);
+	      $$ = new BinaryModNode($1,$3);
 	    }
 	  }
 	;
@@ -557,9 +558,9 @@ factor // Used in: term, factor, power
 	: pick_unop factor
 	  {
 	  switch($1){
-	    case 0: $$ = new AstNode('P',$2,NULL); break;
-	    case 1: $$ = new AstNode('M',$2,NULL); break;
-	    case 2: $$ = new AstNode('T',$2,NULL); break;
+	    case 0: $$ = new UnaryNode('+',$2); break;
+	    case 1: $$ = new UnaryNode('-',$2); break;
+	    case 2: $$ = new UnaryNode('~',$2); break;
 	    }
 	  }
 	| power
@@ -574,7 +575,7 @@ pick_unop // Used in: factor
 	;
 power // Used in: factor
 	: atom star_trailer DOUBLESTAR factor
-	  { $$ = new AstNode('^',$1,$4); }
+	  { $$ = new BinaryExpNode($1,$4); }
 	| atom star_trailer
 	;
 star_trailer // Used in: power, star_trailer
@@ -823,7 +824,7 @@ void yyerror (char const *s) {
 
 bool isDetermined(Ast* ast){
 	if(err == 0 && ast != NULL){
-      double temp = eval(ast);
+      double temp = (ast->eval());
       if(isinf(temp) || temp != temp) {
 	std::cout << "ZeroDivisionError" << std::endl;
 	treeFree(ast);
@@ -838,8 +839,8 @@ void clearFlags(){
 }
 
 void updateTable(const Ast* identifier, Ast* ast){
-	double temp = eval(ast);
-    SymbolTable* instance = SymbolTable::getInstance();
-    instance->createAstFor(identifier->getStr(), temp, anyFloats(ast));
-    treeFree(ast);
+	//double temp = (ast->eval());
+    //SymbolTable* instance = SymbolTable::getInstance();
+    //instance->createAstFor(identifier->getStr(), temp, anyFloats(ast));
+    //treeFree(ast);
 }
