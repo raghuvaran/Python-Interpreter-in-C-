@@ -233,6 +233,13 @@ private:
   std::vector<Ast*>* suite;
 };
 
+class CallFuncNode : public Ast {
+public:
+  CallFuncNode(std::string name) : Ast('R', NULL, NULL), name(name) {}
+
+private:
+  std::string name;
+};
 
 
 
