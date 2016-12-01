@@ -46,6 +46,7 @@ void treeFree(Ast *a) {
             treeFree(a->getLeft());
 
             //no subtree
+        case 'R':
         case 'N':
         case 'F':
         case 'C':

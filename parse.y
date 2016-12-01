@@ -18,9 +18,9 @@
 
 %union{
 	Ast* ast;
-	double d;
 	int i;
 	char* c;
+	std::vector<Ast*>* v;
 }
 // 83 tokens, in alphabetical order:
 %token AMPEREQUAL AMPERSAND AND AS ASSERT AT BACKQUOTE BAR BREAK
@@ -41,9 +41,9 @@
 
 %type<ast> opt_test test or_test and_test not_test comparison expr xor_expr and_expr shift_expr arith_expr term factor power atom pick_yield_expr_testlist_comp opt_yield_test testlist_comp
 
-%type<ast> testlist pick_yield_expr_testlist star_EQUAL print_stmt expr_stmt small_stmt simple_stmt
- 
+%type<ast> testlist pick_yield_expr_testlist star_EQUAL print_stmt expr_stmt small_stmt simple_stmt stmt funcdef
 
+%type<v> plus_stmt suite
 
 
 %start start
@@ -71,7 +71,12 @@ file_input // Used in: start
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	: NEWLINE
 	| stmt
-	{// printf("Evaluating stmt\n"); 
+	{
+	    if(err == 0 && $1 != NULL){
+	 	$1->eval();
+	 	//treeFree($1);
+	 }
+	    clearFlags();
 	}
 	;
 star_NEWLINE_stmt // Used in: file_input, star_NEWLINE_stmt
@@ -97,6 +102,8 @@ decorated // Used in: compound_stmt
 funcdef // Used in: decorated, compound_stmt
 	: DEF NAME parameters COLON suite
 	{// printf("End of function %s\n", $2); 
+	  $$ = new FuncNode($2, $5);
+	  //$$->eval();
 	}
 	;
 parameters // Used in: funcdef
@@ -132,27 +139,15 @@ fplist // Used in: fpdef
 	;
 stmt // Used in: pick_NEWLINE_stmt, plus_stmt
 	: simple_stmt
-		{// printf("Evaluating simple_stmt\n"); 
-		    if(err == 0 && $1 != NULL){
-		 	$1->eval();
-		 	//treeFree($1);
-		 }
-		 clearFlags();
-		}
 	| compound_stmt
+	{ err = 2; $$ = NULL; }
 	;
 simple_stmt // Used in: single_input, stmt, suite
 	: small_stmt small_stmt_STAR_OR_SEMI NEWLINE
 	;
 small_stmt // Used in: simple_stmt, small_stmt_STAR_OR_SEMI
 	: expr_stmt
-		{// printf("Evaluating expr_stmt\n"); 
-
-		}
 	| print_stmt
-		{// printf("Evaluating print_stmt\n"); 
-
-		}
 	| del_stmt
 	{ $$ = NULL; }
 	| pass_stmt
@@ -426,15 +421,23 @@ opt_AS_COMMA // Used in: except_clause
 suite // Used in: funcdef, if_stmt, star_ELIF, while_stmt, for_stmt, 
       // try_stmt, plus_except, opt_ELSE, opt_FINALLY, with_stmt, classdef
 	: simple_stmt
-		{// printf("Compressing simple_stmt to suite\n"); 
-		}
+	{ $$ = NULL; }
 	| NEWLINE INDENT plus_stmt DEDENT
-		{// printf("Got content between Indents\n"); 
-		}
+	{// printf("Got content between Indents\n"); 
+	  $$ = $3;
+	}
 	;
 plus_stmt // Used in: suite, plus_stmt
 	: stmt plus_stmt
+	{
+	  $$ = $2;
+	  $$->push_back($1);
+	}
 	| stmt
+	{
+	  $$ = new std::vector<Ast*>();
+	  $$->push_back($1);
+	}
 	;
 testlist_safe // Used in: list_for
 	: old_test plus_COMMA_old_test

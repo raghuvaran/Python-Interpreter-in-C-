@@ -7,6 +7,7 @@
 
 #include <string>
 #include <fstream>
+#include <vector>
 
 extern void yyerror(const char*);
 extern void yyerror(const char*, const char);
@@ -214,6 +215,38 @@ public:
   ExprNode(Ast* left, Ast* right) : Ast('S', left, right) {}
   virtual double eval() const;
 };
+
+class FuncNode : public Ast{
+public:
+  FuncNode(std::string name, std::vector<Ast*>* suite) : Ast('R', NULL, NULL), name(name), suite(suite) {}
+  virtual double eval() const {
+    std::vector<Ast*>::const_iterator it = suite->end();
+    while(it != suite->begin()){
+      --it;
+      (*it)->eval();
+    }
+    return 0;
+  }
+
+private:
+  std::string name;
+  std::vector<Ast*>* suite;
+};
+
+
+
+
+class SuiteNode { //is a vector holding all the statements
+public:
+  SuiteNode(std::vector<Ast*> & vec) : vec(vec) {}
+  std::vector<Ast*>& getVector(){
+    return vec;
+  }
+
+private:
+  std::vector<Ast*> vec;
+};
+
 
 double eval(const Ast*);   // Evaluate an AST
 void treeFree(Ast*); // delete and free an AST 
