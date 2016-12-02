@@ -218,24 +218,22 @@ public:
 
 class FuncNode : public Ast{
 public:
-  FuncNode(std::string name, std::vector<Ast*>* suite) : Ast('R', NULL, NULL), name(name), suite(suite) {}
-  virtual double eval() const {
-    std::vector<Ast*>::const_iterator it = suite->end();
-    while(it != suite->begin()){
-      --it;
-      (*it)->eval();
-    }
-    return 0;
-  }
+  //get size of table manager and assign one @tableIndex
+  FuncNode(std::string, std::vector<Ast*>*);
+  virtual double eval() const;
 
 private:
   std::string name;
   std::vector<Ast*>* suite;
+  int tableIndex;
 };
 
 class CallFuncNode : public Ast {
 public:
   CallFuncNode(std::string name) : Ast('R', NULL, NULL), name(name) {}
+  virtual double eval() const{
+    return 0;
+  }
 
 private:
   std::string name;

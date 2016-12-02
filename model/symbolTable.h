@@ -7,13 +7,13 @@
 #include <cmath>
 #include "ast.h"
 
-class SymbolTable
+class SymbolTable : public Ast
 {
 public:
-	static SymbolTable* getInstance(){
+/*	static SymbolTable* getInstance(){
 		if(!firstInstance) firstInstance = new SymbolTable;
 		return firstInstance;
-	}
+	}*/
 
 	void setAstFor(std::string str, Ast* ast){
 		if(mapOfVars.find(str) == mapOfVars.end())
@@ -51,13 +51,13 @@ public:
 			mapOfVars.erase(it);
 			it++;
 		}
-		delete firstInstance;
+		// delete firstInstance;
 	}
+	 SymbolTable() : Ast('T') {}
+	~SymbolTable(){}
 private:
 	std::map<std::string, Ast*> mapOfVars;
-	static SymbolTable* firstInstance;
-	 SymbolTable(){}
-	~SymbolTable(){}
+	// static SymbolTable* firstInstance;
 
 };
 

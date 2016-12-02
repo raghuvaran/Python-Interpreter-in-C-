@@ -9,17 +9,40 @@
 #  include <typeinfo>
 //#  include "ast.h"
 #  include "symbolTable.h"
+#  include "../controller/manager.h"
 
 double AstStr::eval() const {
-      SymbolTable* instance = SymbolTable::getInstance();
-            return instance->getAst(str)->getNumber();//eval();
+      Manager* instance = Manager::getInstance();
+            return static_cast<SymbolTable*>(instance->getCurrentSymbolTable())->getAst(str)->getNumber();//eval();
     }
 
 double ExprNode::eval() const {
     double temp = (right->eval());
-    SymbolTable* instance = SymbolTable::getInstance();
-    instance->createAstFor(left->getStr(), temp, anyFloats(right));
+    Manager* instance = Manager::getInstance();
+    static_cast<SymbolTable*>(instance->getCurrentSymbolTable())->createAstFor(left->getStr(), temp, anyFloats(right));
 
+    return 0;
+  }
+
+FuncNode::FuncNode(std::string name, std::vector<Ast*>* suite) : Ast('R', NULL, NULL), name(name), suite(suite) {
+    Manager* instance = Manager::getInstance();
+    tableIndex = instance->getSizeOfVector();
+    instance->createSymbolTable();
+
+  }
+
+double FuncNode::eval() const {
+    Manager* instance = Manager::getInstance();
+    int prevScope = instance->getCurrentScope();
+    instance->setCurrentScope(tableIndex);
+
+    std::vector<Ast*>::const_iterator it = suite->end();
+    while(it != suite->begin()){
+      --it;
+      (*it)->eval();
+    }
+
+    instance->setCurrentScope(prevScope);
     return 0;
   }
 
@@ -67,8 +90,8 @@ bool Ast::anyFloats(const Ast* ast) const{
         case 'F': return true;
         case 'N': return false;
         case 'C': {
-            SymbolTable* instance = SymbolTable::getInstance();
-            return (instance->getAst(ast->getStr())->getNodetype() == 'F');
+            Manager* instance = Manager::getInstance();
+            return (static_cast<SymbolTable*>(instance->getCurrentSymbolTable())->getAst(ast->getStr())->getNodetype() == 'F');
         }
       //Negative exponentials yeild floats
         case 'E': {

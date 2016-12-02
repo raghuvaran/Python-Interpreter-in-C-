@@ -1,16 +1,18 @@
 #include <iostream>
-#include "model/symbolTable.h"
+#include "controller/manager.h"
 extern int yyparse();
 
 int main() {
   try {
 //    std::cout << "> "; 
      extern int yydebug;
-  // yydebug = 1;
+  yydebug = 1;
     int returnCode = yyparse();
     std::cout << std::endl;
-    SymbolTable* instance = SymbolTable::getInstance();
-    instance->freeMap();
+    // SymbolTable* instance = SymbolTable::getInstance();
+    // instance->freeMap();
+    Manager* instance = Manager::getInstance();
+    std::cout << "Size of vector" << instance->getSizeOfVector() << '\n';
     return returnCode;
   }
   catch (const std::string& msg) {

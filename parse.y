@@ -4,6 +4,7 @@
   #include <cmath>
   //#include "ast.h"
   #include "model/symbolTable.h"
+  #include "controller/manager.h"
 	int yylex (void);
 	extern int yylineno;
 	extern char *yytext;
@@ -12,7 +13,7 @@
 	void clearFlags();
 	void updateTable(const Ast*, Ast*);
 	int err=0;
-	SymbolTable* SymbolTable::firstInstance = NULL;
+	Manager* Manager::firstInstance = NULL;
 	
 %}
 

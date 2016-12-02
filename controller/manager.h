@@ -1,64 +1,95 @@
-// #ifndef MANAGER_H
-// #define MANAGER_H
+#ifndef MANAGER_H
+#define MANAGER_H
 
-// #include <iostream>
-// #include <map>
+#include <iostream>
+#include <map>
+#include <utility>
+#include <cmath>
+#include <vector>
+#include "../model/symbolTable.h"
 
 
+class Manager{
 
+public:
+	static Manager* getInstance(){
+		if(!firstInstance) firstInstance = new Manager;
+		return firstInstance;
+	}
 
-// class Manager{
+	void setAstFor(std::string str, Ast* ast){
+		if(mapOfVars.find(str) == mapOfVars.end())
+			mapOfVars.insert(std::make_pair(str, ast));
+		else
+			delete mapOfVars.find(str)->second;
+			mapOfVars.find(str)->second = ast;
+	}
 
-// public:
-// 	static Manager* getInstance(){
-// 		if(!firstInstance) firstInstance = new Manager;
-// 		return firstInstance;
-// 	}
+	void createAstFor(std::string str, double val, bool anyFloats){
+		Ast* ast;
+		//Ast* ast2 = new AstNumber('F',4.4);
+		if((std::floor(val) - val) || anyFloats)  ast = new AstNumber('F',val);
+          else ast = new AstNumber('N',val);
 
-// 	void setAstFor(std::string str, Ast* ast){
-// 		if(mapOfVars.find(str) == mapOfVars.end())
-// 			mapOfVars.insert(std::make_pair(str, ast));
-// 		else
-// 			delete mapOfVars.find(str)->second;
-// 			mapOfVars.find(str)->second = ast;
-// 	}
+        setAstFor(str, ast);
+	}
 
-// 	void createAstFor(std::string str, double val, bool anyFloats){
-// 		Ast* ast;
-// 		//Ast* ast2 = new AstNumber('F',4.4);
-// 		if((std::floor(val) - val) || anyFloats)  ast = new AstNumber('F',val);
-//           else ast = new AstNumber('N',val);
+	Ast* getAst(std::string str){
+		std::map<std::string, Ast*>::iterator it = mapOfVars.find(str);
 
-//         setAstFor(str, ast);
-// 	}
+		if( it != mapOfVars.end() )
+			return it->second;
+		else{
+			Ast* ast = new AstNumber('N',0);
+			setAstFor(str, ast);
+			return ast;
+		}
+	}
 
-// 	Ast* getAst(std::string str){
-// 		std::map<std::string, Ast*>::iterator it = mapOfVars.find(str);
+	void freeMap(){
+		std::map<std::string, Ast*>::iterator it = mapOfVars.begin();
+		while(it != mapOfVars.end()){
+			delete it->second;
+			mapOfVars.erase(it);
+			it++;
+		}
+		//delete firstInstance;
+	}
 
-// 		if( it != mapOfVars.end() )
-// 			return it->second;
-// 		else{
-// 			Ast* ast = new AstNumber('N',0);
-// 			setAstFor(str, ast);
-// 			return ast;
-// 		}
-// 	}
+	int getSizeOfVector(){
+		return symbolTables.size();
+	}
 
-// 	void freeMap(){
-// 		std::map<std::string, Ast*>::iterator it = mapOfVars.begin();
-// 		while(it != mapOfVars.end()){
-// 			delete it->second;
-// 			mapOfVars.erase(it);
-// 			it++;
-// 		}
-// 		delete firstInstance;
-// 	}
-// private:
-// 	std::map<std::string, Ast*> mapOfVars;
-// 	static Manager* firstInstance;
-// 	 Manager(){}
-// 	~Manager(){}
+	void createSymbolTable(){
+		symbolTables.push_back(new SymbolTable());
+	}
 
-// }
+	Ast* getSymbolTable(int index){
+		return symbolTables[index];
+	}
 
-// #endif //MANAGER_H
+	Ast* getCurrentSymbolTable(){
+		return symbolTables[currentScope];
+	}
+
+	void setCurrentScope(int index){
+		currentScope = index;
+	}
+
+	int getCurrentScope(){
+		return currentScope;
+	}
+
+private:
+	std::map<std::string, Ast*> mapOfVars;
+	std::vector<Ast*> symbolTables;
+	static Manager* firstInstance;
+	int currentScope = 0;
+	 Manager(){
+	 	symbolTables.push_back(new SymbolTable());
+	 }
+	~Manager(){}
+
+};
+
+#endif //MANAGER_H
