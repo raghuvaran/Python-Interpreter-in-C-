@@ -64,6 +64,11 @@ public:
 		symbolTables.push_back(new SymbolTable());
 	}
 
+	void destroySymbolTable(){
+		delete symbolTables.back();
+		symbolTables.pop_back();
+	}
+
 	Ast* getSymbolTable(int index){
 		return symbolTables[index];
 	}

@@ -38,13 +38,13 @@
 
 %token<c> NUMBER NAME
 
-%type<i> pick_PLUS_MINUS pick_multop pick_unop augassign
+%type<i> pick_PLUS_MINUS pick_multop pick_unop augassign star_trailer
 
 %type<ast> opt_test test or_test and_test not_test comparison expr xor_expr and_expr shift_expr arith_expr term factor power atom pick_yield_expr_testlist_comp opt_yield_test testlist_comp
 
-%type<ast> testlist pick_yield_expr_testlist star_EQUAL print_stmt expr_stmt small_stmt simple_stmt stmt funcdef
+%type<ast> testlist pick_yield_expr_testlist star_EQUAL print_stmt expr_stmt small_stmt simple_stmt stmt suite funcdef
 
-%type<v> plus_stmt suite
+%type<v> plus_stmt
 
 
 %start start
@@ -104,7 +104,6 @@ funcdef // Used in: decorated, compound_stmt
 	: DEF NAME parameters COLON suite
 	{// printf("End of function %s\n", $2); 
 	  $$ = new FuncNode($2, $5);
-	  //$$->eval();
 	}
 	;
 parameters // Used in: funcdef
@@ -425,7 +424,7 @@ suite // Used in: funcdef, if_stmt, star_ELIF, while_stmt, for_stmt,
 	{ $$ = NULL; }
 	| NEWLINE INDENT plus_stmt DEDENT
 	{// printf("Got content between Indents\n"); 
-	  $$ = $3;
+	  $$ = new SuiteNode($3);
 	}
 	;
 plus_stmt // Used in: suite, plus_stmt
@@ -581,10 +580,20 @@ power // Used in: factor
 	: atom star_trailer DOUBLESTAR factor
 	  { $$ = new BinaryExpNode($1,$4); }
 	| atom star_trailer
+	{ if(err == 0 && $2){
+		printf("Calling function\n");
+		$$ = new CallFuncNode($1->getStr());
+		$$->eval();
+	  }
+	  else
+	  	$$ = $1;
+	}
 	;
 star_trailer // Used in: power, star_trailer
 	: trailer star_trailer
+	{ $$ = 1; }
 	| %empty
+	{ $$ = 0; }
 	;
 atom // Used in: power
 	: LPAR opt_yield_test RPAR

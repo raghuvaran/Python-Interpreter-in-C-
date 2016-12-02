@@ -13,6 +13,7 @@
 
 double AstStr::eval() const {
       Manager* instance = Manager::getInstance();
+      // std::cout << "Var : " << str << ", " << instance->getCurrentScope();
             return static_cast<SymbolTable*>(instance->getCurrentSymbolTable())->getAst(str)->getNumber();//eval();
     }
 
@@ -24,25 +25,39 @@ double ExprNode::eval() const {
     return 0;
   }
 
-FuncNode::FuncNode(std::string name, std::vector<Ast*>* suite) : Ast('R', NULL, NULL), name(name), suite(suite) {
+FuncNode::FuncNode(std::string name, Ast* suite) : Ast('S', suite, NULL), name(name) {
     Manager* instance = Manager::getInstance();
-    tableIndex = instance->getSizeOfVector();
-    instance->createSymbolTable();
+    instance->setAstFor(name, suite);
 
   }
 
-double FuncNode::eval() const {
+
+double SuiteNode::eval() const {
     Manager* instance = Manager::getInstance();
     int prevScope = instance->getCurrentScope();
+    int tableIndex = instance->getSizeOfVector();
     instance->setCurrentScope(tableIndex);
+    instance->createSymbolTable();
 
-    std::vector<Ast*>::const_iterator it = suite->end();
-    while(it != suite->begin()){
+    std::vector<Ast*>::const_iterator it = vec->end();
+    while(it != vec->begin()){
       --it;
       (*it)->eval();
     }
 
     instance->setCurrentScope(prevScope);
+    instance->destroySymbolTable();
+    return 0;
+  }
+
+  double CallFuncNode::eval() const {
+    Manager* instance = Manager::getInstance();
+    Ast* func = instance->getAst(name);
+    if(dynamic_cast<AstNumber*>(func) ){
+        std::cout << func->eval() << std::endl;
+    }else
+    func->eval();
+
     return 0;
   }
 

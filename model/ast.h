@@ -219,21 +219,18 @@ public:
 class FuncNode : public Ast{
 public:
   //get size of table manager and assign one @tableIndex
-  FuncNode(std::string, std::vector<Ast*>*);
-  virtual double eval() const;
+  FuncNode(std::string, Ast*);
+  // virtual double eval() const;
 
 private:
   std::string name;
-  std::vector<Ast*>* suite;
   int tableIndex;
 };
 
 class CallFuncNode : public Ast {
 public:
-  CallFuncNode(std::string name) : Ast('R', NULL, NULL), name(name) {}
-  virtual double eval() const{
-    return 0;
-  }
+  CallFuncNode(std::string name) : Ast('R'), name(name) {}
+  virtual double eval() const;
 
 private:
   std::string name;
@@ -241,15 +238,12 @@ private:
 
 
 
-class SuiteNode { //is a vector holding all the statements
+class SuiteNode : public Ast { //is a vector holding all the statements
 public:
-  SuiteNode(std::vector<Ast*> & vec) : vec(vec) {}
-  std::vector<Ast*>& getVector(){
-    return vec;
-  }
-
+  SuiteNode(std::vector<Ast*>* vec) : Ast('R'), vec(vec) {}
+  virtual double eval() const;
 private:
-  std::vector<Ast*> vec;
+  std::vector<Ast*>* vec;
 };
 
 
