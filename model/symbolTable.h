@@ -38,9 +38,9 @@ public:
 		if( it != mapOfVars.end() )
 			return it->second;
 		else{
-			Ast* ast = new AstNumber('N',0);
-			setAstFor(str, ast);
-			return ast;
+			// Ast* ast = new AstNumber('N',0);
+			// setAstFor(str, ast);
+			return NULL;
 		}
 	}
 

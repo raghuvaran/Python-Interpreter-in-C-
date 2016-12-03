@@ -13,23 +13,38 @@
 
 double AstStr::eval() const {
       Manager* instance = Manager::getInstance();
-      // std::cout << "Var : " << str << ", " << instance->getCurrentScope();
-            return static_cast<SymbolTable*>(instance->getCurrentSymbolTable())->getAst(str)->getNumber();//eval();
+      // std::cout << "Var : " << str << ", " << instance->getCurrentScope() << "\n";
+            return instance->getAstFromCS(str)->getNumber();//eval();
     }
 
 double ExprNode::eval() const {
     double temp = (right->eval());
     Manager* instance = Manager::getInstance();
-    static_cast<SymbolTable*>(instance->getCurrentSymbolTable())->createAstFor(left->getStr(), temp, anyFloats(right));
+    instance->createAstInCS(left->getStr(), temp, anyFloats(right));
 
     return 0;
   }
-
-FuncNode::FuncNode(std::string name, Ast* suite) : Ast('S', suite, NULL), name(name) {
-    Manager* instance = Manager::getInstance();
-    instance->setAstFor(name, suite);
+double PrintNode::eval() const {
+  double temp = (left->eval());
+  if(isinf(temp) || temp != temp)
+    std::cout << "ZeroDivisionError" << std::endl;
+  else
+    {  std::cout << temp;
+       if(!(std::floor(temp) - temp) && anyFloats(left))  std::cout << ".0";
+       std::cout << std::endl;
+     }
+return 0;
 
   }
+FuncNode::FuncNode(std::string name, Ast* suite) : Ast('S', suite, NULL), name(name) {
+
+  }
+
+double FuncNode::eval() const {
+    Manager* instance = Manager::getInstance();
+    instance->setAstInCS(name, left);
+    return 0;
+}
 
 
 double SuiteNode::eval() const {
@@ -52,11 +67,15 @@ double SuiteNode::eval() const {
 
   double CallFuncNode::eval() const {
     Manager* instance = Manager::getInstance();
-    Ast* func = instance->getAst(name);
-    if(dynamic_cast<AstNumber*>(func) ){
-        std::cout << func->eval() << std::endl;
-    }else
-    func->eval();
+    Ast* func = instance->getAstFromCS(name);
+    // printf("Evaluating function %s\n",name.c_str());
+    // if(dynamic_cast<AstNumber*>(func) ){
+    //     std::cout << func << std::endl;
+    // }else
+    if(!dynamic_cast<AstNumber*>(func))
+        func->eval();
+    else
+        std::cout << "NameError: name '" << name << "'is not defined\n" ;
 
     return 0;
   }
@@ -106,7 +125,7 @@ bool Ast::anyFloats(const Ast* ast) const{
         case 'N': return false;
         case 'C': {
             Manager* instance = Manager::getInstance();
-            return (static_cast<SymbolTable*>(instance->getCurrentSymbolTable())->getAst(ast->getStr())->getNodetype() == 'F');
+            return (instance->getAstFromCS(ast->getStr())->getNodetype() == 'F');
         }
       //Negative exponentials yeild floats
         case 'E': {

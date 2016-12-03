@@ -196,17 +196,7 @@ private:
 class PrintNode : public Ast{
 public:
     PrintNode(Ast* node) : Ast('S', node, NULL) {};
-    virtual double eval() const {
-          double temp = (left->eval());
-          if(isinf(temp) || temp != temp)
-            std::cout << "ZeroDivisionError" << std::endl;
-          else
-            {  std::cout << temp;
-               if(!(std::floor(temp) - temp) && anyFloats(left))  std::cout << ".0";
-               std::cout << std::endl;
-             }
-      return 0;
-    }
+    virtual double eval() const;
 };
 
 
@@ -220,7 +210,7 @@ class FuncNode : public Ast{
 public:
   //get size of table manager and assign one @tableIndex
   FuncNode(std::string, Ast*);
-  // virtual double eval() const;
+  virtual double eval() const;
 
 private:
   std::string name;

@@ -42,7 +42,7 @@
 
 %type<ast> opt_test test or_test and_test not_test comparison expr xor_expr and_expr shift_expr arith_expr term factor power atom pick_yield_expr_testlist_comp opt_yield_test testlist_comp
 
-%type<ast> testlist pick_yield_expr_testlist star_EQUAL print_stmt expr_stmt small_stmt simple_stmt stmt suite funcdef
+%type<ast> testlist pick_yield_expr_testlist star_EQUAL print_stmt expr_stmt small_stmt simple_stmt stmt suite funcdef compound_stmt
 
 %type<v> plus_stmt
 
@@ -72,8 +72,13 @@ file_input // Used in: start
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	: NEWLINE
 	| stmt
-	{
+	{// printf("Error val: %i\n",err);
+		//if(dynamic_cast<FuncNode*>($1)) printf("stmt got FuncNode\n");
+		//if(dynamic_cast<CallFuncNode*>($1)) printf("stmt got CallFuncNode\n");
+		//if(dynamic_cast<SuiteNode*>($1)) printf("stmt got SuiteNode\n");
+		//if($1)std::cout << "In stmt with nodetype " << $1->getNodetype() << '\n';
 	    if(err == 0 && $1 != NULL){
+	    //printf("Node evaluated\n");
 	 	$1->eval();
 	 	//treeFree($1);
 	 }
@@ -140,7 +145,8 @@ fplist // Used in: fpdef
 stmt // Used in: pick_NEWLINE_stmt, plus_stmt
 	: simple_stmt
 	| compound_stmt
-	{ err = 2; $$ = NULL; }
+	{ //err = 2; $$ = NULL; 
+	}
 	;
 simple_stmt // Used in: single_input, stmt, suite
 	: small_stmt small_stmt_STAR_OR_SEMI NEWLINE
@@ -180,16 +186,10 @@ expr_stmt // Used in: small_stmt
 
 	  		$$ = (ast != NULL) ? new ExprNode($1, ast) : NULL;
 	  	}
-	//	if(err != 2) treeFree($1);
-	  	//clearFlags();
 	  }
 	| testlist star_EQUAL
 	  { 
-	         $$ = (err == 0 && $2 != NULL) ?  new ExprNode($1,$2) : NULL;
-	        //treeFree($2);
-	    
-	    //if(err != 2) treeFree($1);
-	    //clearFlags();
+	         $$ = (err == 0 && $2 != NULL) ?  new ExprNode($1,$2) : $1;
 	  }
 	;
 pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
@@ -244,9 +244,6 @@ print_stmt // Used in: small_stmt
 	: PRINT opt_test
     {
           $$ = (err == 0 && $2 != NULL) ? new PrintNode($2) : NULL;
-          //treeFree($2);
-        //clearFlags();
-
     }
 	| PRINT RIGHTSHIFT test opt_test_2
 	{ $$ = NULL;}
@@ -355,13 +352,20 @@ assert_stmt // Used in: small_stmt
 	;
 compound_stmt // Used in: single_input, stmt
 	: if_stmt
+	{ $$ = NULL; }
 	| while_stmt
+	{ $$ = NULL; }
 	| for_stmt
+	{ $$ = NULL; }
 	| try_stmt
+	{ $$ = NULL; }
 	| with_stmt
+	{ $$ = NULL; }
 	| funcdef
 	| classdef
+	{ $$ = NULL; }
 	| decorated
+	{ $$ = NULL; }
 	;
 if_stmt // Used in: compound_stmt
 	: IF test COLON suite star_ELIF ELSE COLON suite
@@ -581,9 +585,10 @@ power // Used in: factor
 	  { $$ = new BinaryExpNode($1,$4); }
 	| atom star_trailer
 	{ if(err == 0 && $2){
-		printf("Calling function\n");
+
 		$$ = new CallFuncNode($1->getStr());
-		$$->eval();
+		//printf("Callnode created for %s\n",$1->getStr().c_str());
+		//$$->eval();
 	  }
 	  else
 	  	$$ = $1;
@@ -591,7 +596,10 @@ power // Used in: factor
 	;
 star_trailer // Used in: power, star_trailer
 	: trailer star_trailer
-	{ $$ = 1; }
+	{ 
+	  //printf("trailer executed\n");
+	  $$ = 1;
+	}
 	| %empty
 	{ $$ = 0; }
 	;
