@@ -35,9 +35,6 @@ double PrintNode::eval() const {
 return 0;
 
   }
-FuncNode::FuncNode(std::string name, Ast* suite) : Ast('S', suite, NULL), name(name) {
-
-  }
 
 double FuncNode::eval() const {
     Manager* instance = Manager::getInstance();

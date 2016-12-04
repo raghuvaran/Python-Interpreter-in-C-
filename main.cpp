@@ -5,8 +5,7 @@ extern int yyparse();
 int main() {
   try {
 //    std::cout << "> "; 
-     extern int yydebug;
-  // yydebug = 1;
+     // extern int yydebug; yydebug = 1;
     int returnCode = yyparse();
     std::cout << std::endl;
     // SymbolTable* instance = SymbolTable::getInstance();
