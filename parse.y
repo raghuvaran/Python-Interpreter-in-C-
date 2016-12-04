@@ -9,7 +9,6 @@
 	extern int yylineno;
 	extern char *yytext;
 	void yyerror (char const *);
-	bool isDetermined(Ast*);
 	void clearFlags();
 	void stashVoids(Ast*);
 	void updateTable(const Ast*, Ast*);
@@ -842,18 +841,6 @@ void yyerror (char const *s) {
 	fprintf (stderr, "%d: %s with [%s]\n", yylineno, s, yytext);
 }
 
-
-bool isDetermined(Ast* ast){
-	if(err == 0 && ast != NULL){
-      double temp = (ast->eval());
-      if(isinf(temp) || temp != temp) {
-	std::cout << "ZeroDivisionError" << std::endl;
-	treeFree(ast);
-	}
-        else  return true;
-    }
-    return false;
-}
 
 void clearFlags(){
 	err = 0;

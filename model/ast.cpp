@@ -25,7 +25,7 @@ double ExprNode::eval() const {
   }
 double PrintNode::eval() const {
   double temp = (left->eval());
-  if(isinf(temp) || temp != temp)
+  if(std::isinf(temp) || temp != temp)
     std::cout << "ZeroDivisionError" << std::endl;
   else
     {  std::cout << temp;
@@ -81,7 +81,7 @@ bool Ast::areInt(const Ast* ast) const{
   double left = (ast->getLeft()->eval()),
                     right = (ast->getRight()->eval());
 
-    return !anyFloats(ast) && !isinf(left) && !isinf(right);
+    return !anyFloats(ast) && !std::isinf(left) && !std::isinf(right);
 
     // return a->getLeft()->getNodetype() != 'F' && a->getRight()->getNodetype() != 'F' && modf(left,&temp) == 0.0 && modf(right,&temp) == 0.0 && !isinf(left) && !isinf(right);
 }
