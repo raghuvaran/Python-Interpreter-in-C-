@@ -92,11 +92,13 @@ public:
 
 	void createSymbolTable(){
 		symbolTables.push_back(new SymbolTable());
+		++currentScope;
 	}
 
 	void destroySymbolTable(){
 		delete symbolTables.back();
 		symbolTables.pop_back();
+		--currentScope;
 	}
 
 	SymbolTable* getSymbolTable(int index){

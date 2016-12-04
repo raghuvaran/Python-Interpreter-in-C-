@@ -20,10 +20,7 @@ double AstStr::eval() const {
 double ExprNode::eval() const {
     double temp = (right->eval());
     Manager* instance = Manager::getInstance();
-    anyFloats(right);
-    printf("within Expr eval function and has right value %f\n", temp);
     instance->createAstInCS(left->getStr(), temp, anyFloats(right));
-    printf("Got thru Expr eval function\n");
     return 0;
   }
 double PrintNode::eval() const {
@@ -51,9 +48,9 @@ double FuncNode::eval() const {
 
 double SuiteNode::eval() const {
     Manager* instance = Manager::getInstance();
-    int prevScope = instance->getCurrentScope();
-    int tableIndex = instance->getSizeOfVector();
-    instance->setCurrentScope(tableIndex);
+    // int prevScope = instance->getCurrentScope();
+    // int tableIndex = instance->getSizeOfVector();
+    // instance->setCurrentScope(tableIndex);
     instance->createSymbolTable();
 
     std::vector<Ast*>::const_iterator it = vec->end();
@@ -62,7 +59,7 @@ double SuiteNode::eval() const {
       (*it)->eval();
     }
 
-    instance->setCurrentScope(prevScope);
+    // instance->setCurrentScope(prevScope);
     instance->destroySymbolTable();
     return 0;
   }
@@ -117,7 +114,6 @@ void treeFree(Ast *a) {
 }
 
 bool Ast::anyFloats(const Ast* ast) const{
-    printf("Got ast of type %c\n",ast->getNodetype());
 
     if(!ast) return false;
 

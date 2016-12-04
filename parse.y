@@ -68,7 +68,6 @@ single_input // Used in: start
 	;
 file_input // Used in: start
 	: star_NEWLINE_stmt ENDMARKER
-	{printf("Been to file_input\n");}
 	;
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	: NEWLINE
@@ -79,9 +78,7 @@ pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 		//if(dynamic_cast<SuiteNode*>($1)) printf("stmt got SuiteNode\n");
 		//if($1)std::cout << "In stmt with nodetype " << $1->getNodetype() << '\n';
 	    if(err == 0 && $1){
-	    if(dynamic_cast<ExprNode*>($1)) printf("Expr");
-	    printf("Node evaluated\n");
-	 	$1->eval();
+	 	  $1->eval();
 	 	//treeFree($1);
 	 }
 	    clearFlags();
@@ -89,9 +86,7 @@ pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	;
 star_NEWLINE_stmt // Used in: file_input, star_NEWLINE_stmt
 	: pick_NEWLINE_stmt star_NEWLINE_stmt
-	{printf("Been to star_NEWLINE_stmt\n");}
 	| %empty
-	{printf("Been to star_NEWLINE_%%empty\n");}
 	;
 decorator // Used in: decorators
 	: AT dotted_name LPAR opt_arglist RPAR NEWLINE
@@ -99,7 +94,6 @@ decorator // Used in: decorators
 	;
 opt_arglist // Used in: decorator, trailer
 	: arglist
-	{printf("Been to opt_arglist\n");}
 	| %empty
 	;
 decorators // Used in: decorators, decorated
@@ -160,19 +154,19 @@ small_stmt // Used in: simple_stmt, small_stmt_STAR_OR_SEMI
 	: expr_stmt
 	| print_stmt
 	| del_stmt
-	{ $$ = NULL; }
+	{ $$ = new AstStr('I',"Ignore"); }
 	| pass_stmt
-	{ $$ = NULL; }
+	{ $$ = new AstStr('I',"Ignore"); }
 	| flow_stmt
-	{ $$ = NULL; }
+	{ $$ = new AstStr('I',"Ignore"); }
 	| import_stmt
-	{ $$ = NULL; }
+	{ $$ = new AstStr('I',"Ignore"); }
 	| global_stmt
-	{ $$ = new AstStr('C',"globe"); }
+	{ $$ = new AstStr('I',"Ignore"); }
 	| exec_stmt
-	{ $$ = NULL; }
+	{ $$ = new AstStr('I',"Ignore"); }
 	| assert_stmt
-	{ $$ = NULL; }
+	{ $$ = new AstStr('I',"Ignore"); }
 	;
 expr_stmt // Used in: small_stmt
 	: testlist augassign pick_yield_expr_testlist
@@ -193,7 +187,7 @@ expr_stmt // Used in: small_stmt
 	  	}
 	  }
 	| testlist star_EQUAL
-	  { printf("Simple expr\n");
+	  {
 	         $$ = (err == 0 && $2) ?  new ExprNode($1,$2) : $1;
 	  }
 	;
@@ -357,20 +351,20 @@ assert_stmt // Used in: small_stmt
 	;
 compound_stmt // Used in: single_input, stmt
 	: if_stmt
-	{ $$ = NULL; }
+	{ $$ = new AstStr('I',"Ignore"); }
 	| while_stmt
-	{ $$ = NULL; }
+	{ $$ = new AstStr('I',"Ignore"); }
 	| for_stmt
-	{ $$ = NULL; }
+	{ $$ = new AstStr('I',"Ignore"); }
 	| try_stmt
-	{ $$ = NULL; }
+	{ $$ = new AstStr('I',"Ignore"); }
 	| with_stmt
-	{ $$ = NULL; }
+	{ $$ = new AstStr('I',"Ignore"); }
 	| funcdef
 	| classdef
-	{ $$ = NULL; }
+	{ $$ = new AstStr('I',"Ignore"); }
 	| decorated
-	{ $$ = NULL; }
+	{ $$ = new AstStr('I',"Ignore"); }
 	;
 if_stmt // Used in: compound_stmt
 	: IF test COLON suite star_ELIF ELSE COLON suite
@@ -602,7 +596,6 @@ power // Used in: factor
 star_trailer // Used in: power, star_trailer
 	: trailer star_trailer
 	{ 
-	  //printf("trailer executed\n");
 	  $$ = 1;
 	}
 	| %empty
@@ -726,7 +719,6 @@ opt_testlist // Used in: classdef
 	;
 arglist // Used in: opt_arglist, arglist
 	: argument COMMA arglist
-	{printf("Been to arglist\n");}
 	| argument COMMA
 	| argument
 	| listarg COMMA arglist_postlist
@@ -735,10 +727,9 @@ arglist // Used in: opt_arglist, arglist
 	;
 argument // Used in: arglist, arglist_postlist
 	: test opt_comp_for
-	{ printf("Been to argument\n");
+	{ 
 	  if($1){
 	    delete $1;
-	    printf("   and deleted $1\n");
 	  }
 	}
 	| test EQUAL test
