@@ -144,8 +144,6 @@ fplist // Used in: fpdef
 stmt // Used in: pick_NEWLINE_stmt, plus_stmt
 	: simple_stmt
 	| compound_stmt
-	{ //err = 2; $$ = NULL; 
-	}
 	;
 simple_stmt // Used in: single_input, stmt, suite
 	: small_stmt small_stmt_STAR_OR_SEMI NEWLINE
@@ -584,10 +582,7 @@ power // Used in: factor
 	  { $$ = new BinaryExpNode($1,$4); }
 	| atom star_trailer
 	{ if(err == 0 && $2){
-
 		$$ = new CallFuncNode($1->getStr());
-		//printf("Callnode created for %s\n",$1->getStr().c_str());
-		//$$->eval();
 	  }
 	  else
 	  	$$ = $1;
