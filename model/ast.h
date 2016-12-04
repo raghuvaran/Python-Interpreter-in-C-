@@ -209,7 +209,7 @@ public:
 class FuncNode : public Ast{
 public:
   //get size of table manager and assign one @tableIndex
-  FuncNode(std::string, Ast*);
+  FuncNode(std::string name, Ast* suite) : Ast('S', suite, NULL), name(name) {}
   virtual double eval() const;
 
 private:

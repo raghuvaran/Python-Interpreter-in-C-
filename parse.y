@@ -11,6 +11,7 @@
 	void yyerror (char const *);
 	bool isDetermined(Ast*);
 	void clearFlags();
+	void stashVoids(Ast*);
 	void updateTable(const Ast*, Ast*);
 	int err=0;
 	Manager* Manager::firstInstance = NULL;
@@ -80,6 +81,7 @@ pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	    if(err == 0 && $1){
 	 	  $1->eval();
 	 	//treeFree($1);
+	 	stashVoids($1);
 	 }
 	    clearFlags();
 	}
@@ -855,6 +857,13 @@ bool isDetermined(Ast* ast){
 
 void clearFlags(){
 	err = 0;
+}
+
+void stashVoids(Ast* ast){
+	if(dynamic_cast<AstStr*>(ast)){
+	  if(ast->getNodetype() == 'I')
+	    delete ast;
+	}
 }
 
 void updateTable(const Ast* identifier, Ast* ast){
