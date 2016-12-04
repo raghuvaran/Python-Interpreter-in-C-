@@ -20,8 +20,10 @@ double AstStr::eval() const {
 double ExprNode::eval() const {
     double temp = (right->eval());
     Manager* instance = Manager::getInstance();
+    anyFloats(right);
+    printf("within Expr eval function and has right value %f\n", temp);
     instance->createAstInCS(left->getStr(), temp, anyFloats(right));
-
+    printf("Got thru Expr eval function\n");
     return 0;
   }
 double PrintNode::eval() const {
@@ -115,8 +117,9 @@ void treeFree(Ast *a) {
 }
 
 bool Ast::anyFloats(const Ast* ast) const{
+    printf("Got ast of type %c\n",ast->getNodetype());
 
-    if(ast == NULL) return false;
+    if(!ast) return false;
 
     switch(ast->getNodetype()){
 
@@ -132,7 +135,10 @@ bool Ast::anyFloats(const Ast* ast) const{
             if(ast->getRight()->eval() < 0 ) return true;
         }
       //Check left and right nodes
-        default : {
+        // case 'U' : {
+        //     if(anyFloats(ast->getLeft())) return true;
+        // }
+        case 'B' :{
             if(anyFloats(ast->getLeft()) || anyFloats(ast->getRight()) ) return true;
         }
     }

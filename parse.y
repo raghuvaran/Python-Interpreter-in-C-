@@ -68,6 +68,7 @@ single_input // Used in: start
 	;
 file_input // Used in: start
 	: star_NEWLINE_stmt ENDMARKER
+	{printf("Been to file_input\n");}
 	;
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	: NEWLINE
@@ -77,8 +78,9 @@ pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 		//if(dynamic_cast<CallFuncNode*>($1)) printf("stmt got CallFuncNode\n");
 		//if(dynamic_cast<SuiteNode*>($1)) printf("stmt got SuiteNode\n");
 		//if($1)std::cout << "In stmt with nodetype " << $1->getNodetype() << '\n';
-	    if(err == 0 && $1 != NULL){
-	    //printf("Node evaluated\n");
+	    if(err == 0 && $1){
+	    if(dynamic_cast<ExprNode*>($1)) printf("Expr");
+	    printf("Node evaluated\n");
 	 	$1->eval();
 	 	//treeFree($1);
 	 }
@@ -87,7 +89,9 @@ pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	;
 star_NEWLINE_stmt // Used in: file_input, star_NEWLINE_stmt
 	: pick_NEWLINE_stmt star_NEWLINE_stmt
+	{printf("Been to star_NEWLINE_stmt\n");}
 	| %empty
+	{printf("Been to star_NEWLINE_%%empty\n");}
 	;
 decorator // Used in: decorators
 	: AT dotted_name LPAR opt_arglist RPAR NEWLINE
@@ -95,6 +99,7 @@ decorator // Used in: decorators
 	;
 opt_arglist // Used in: decorator, trailer
 	: arglist
+	{printf("Been to opt_arglist\n");}
 	| %empty
 	;
 decorators // Used in: decorators, decorated
@@ -163,7 +168,7 @@ small_stmt // Used in: simple_stmt, small_stmt_STAR_OR_SEMI
 	| import_stmt
 	{ $$ = NULL; }
 	| global_stmt
-	{ $$ = NULL; }
+	{ $$ = new AstStr('C',"globe"); }
 	| exec_stmt
 	{ $$ = NULL; }
 	| assert_stmt
@@ -188,8 +193,8 @@ expr_stmt // Used in: small_stmt
 	  	}
 	  }
 	| testlist star_EQUAL
-	  { 
-	         $$ = (err == 0 && $2 != NULL) ?  new ExprNode($1,$2) : $1;
+	  { printf("Simple expr\n");
+	         $$ = (err == 0 && $2) ?  new ExprNode($1,$2) : $1;
 	  }
 	;
 pick_yield_expr_testlist // Used in: expr_stmt, star_EQUAL
@@ -721,6 +726,7 @@ opt_testlist // Used in: classdef
 	;
 arglist // Used in: opt_arglist, arglist
 	: argument COMMA arglist
+	{printf("Been to arglist\n");}
 	| argument COMMA
 	| argument
 	| listarg COMMA arglist_postlist
@@ -729,6 +735,12 @@ arglist // Used in: opt_arglist, arglist
 	;
 argument // Used in: arglist, arglist_postlist
 	: test opt_comp_for
+	{ printf("Been to argument\n");
+	  if($1){
+	    delete $1;
+	    printf("   and deleted $1\n");
+	  }
+	}
 	| test EQUAL test
 	;
 opt_comp_for // Used in: argument
