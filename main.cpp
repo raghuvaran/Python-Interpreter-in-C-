@@ -8,9 +8,8 @@ int main() {
      // extern int yydebug; yydebug = 1;
     int returnCode = yyparse();
     std::cout << std::endl;
-    // SymbolTable* instance = SymbolTable::getInstance();
-    // instance->freeMap();
-    // Manager* instance = Manager::getInstance();
+    Manager* instance = Manager::getInstance();
+    instance->freeMap();
     // std::cout << "Size of vector" << instance->getSizeOfVector() << '\n';
     return returnCode;
   }

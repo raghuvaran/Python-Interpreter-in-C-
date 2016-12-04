@@ -195,14 +195,14 @@ private:
 
 class PrintNode : public Ast{
 public:
-    PrintNode(Ast* node) : Ast('S', node, NULL) {};
+    PrintNode(Ast* node) : Ast('P', node, NULL) {};
     virtual double eval() const;
 };
 
 
 class ExprNode : public Ast{
 public:
-  ExprNode(Ast* left, Ast* right) : Ast('S', left, right) {}
+  ExprNode(Ast* left, Ast* right) : Ast('X', left, right) {}
   virtual double eval() const;
 };
 

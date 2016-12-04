@@ -87,26 +87,29 @@ bool Ast::areInt(const Ast* ast) const{
 }
 
 void treeFree(Ast *a) {
+  if(!a) return;
     switch(a->getNodetype()) {
         // two subtrees
         case 'B':
         case 'E':
+        case 'U':
+        case 'I':
+        // case 'P':
+        // case 'X':
+        // case 'S':
+        // case 'R':
             treeFree(a->getRight());
 
             // one subtrees
-        case 'S':
-        case 'U':
             treeFree(a->getLeft());
 
             //no subtree
-        case 'R':
         case 'N':
         case 'F':
         case 'C':
             delete a;
-            break;
-        default: std::cout << "internal error: bad node "
-                           << a->getNodetype() << std::endl;;
+            // break;
+        // default: std::cout << "internal error: bad node " << a->getNodetype() << std::endl;;
     }
 }
 

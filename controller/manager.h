@@ -76,15 +76,16 @@ public:
 	// 	}
 	// }
 
-	// void freeMap(){
-	// 	std::map<std::string, Ast*>::iterator it = mapOfVars.begin();
-	// 	while(it != mapOfVars.end()){
-	// 		delete it->second;
-	// 		mapOfVars.erase(it);
-	// 		it++;
-	// 	}
-	// 	//delete firstInstance;
-	// }
+	void freeMap(){
+		std::vector<SymbolTable*>::iterator it = symbolTables.begin();
+		// symbolTables.clear();
+		while(it != symbolTables.end()){
+			delete (*it);
+			// symbolTables.erase(it);
+			it++;
+		}
+		delete firstInstance;
+	}
 
 	int getSizeOfVector(){
 		return symbolTables.size();

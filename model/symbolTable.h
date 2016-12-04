@@ -54,7 +54,10 @@ public:
 		// delete firstInstance;
 	}
 	 SymbolTable() : Ast('T') {}
-	~SymbolTable(){}
+	~SymbolTable(){
+		// printf("Deleting symbol table \n");
+		freeMap();
+	}
 private:
 	std::map<std::string, Ast*> mapOfVars;
 	// static SymbolTable* firstInstance;
