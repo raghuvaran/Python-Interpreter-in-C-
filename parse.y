@@ -72,14 +72,9 @@ file_input // Used in: start
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
 	: NEWLINE
 	| stmt
-	{// printf("Error val: %i\n",err);
-		//if(dynamic_cast<FuncNode*>($1)) printf("stmt got FuncNode\n");
-		//if(dynamic_cast<CallFuncNode*>($1)) printf("stmt got CallFuncNode\n");
-		//if(dynamic_cast<SuiteNode*>($1)) printf("stmt got SuiteNode\n");
-		//if($1)std::cout << "In stmt with nodetype " << $1->getNodetype() << '\n';
+	{
 	    if(err == 0 && $1){
 	 	  $1->eval();
-	 	//treeFree($1);
 	 	stashVoids($1);
 	 }
 	    clearFlags();
