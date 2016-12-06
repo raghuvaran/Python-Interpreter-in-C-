@@ -236,6 +236,14 @@ private:
   std::vector<Ast*>* vec;
 };
 
+class ReturnNode : public Ast
+{
+public:
+  ReturnNode(Ast* AstStr) : Ast('R', AstStr, NULL) {}
+  virtual double eval() const;
+  
+};
+
 
 double eval(const Ast*);   // Evaluate an AST
 void treeFree(Ast*); // delete and free an AST 

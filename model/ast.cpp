@@ -53,8 +53,14 @@ double SuiteNode::eval() const {
     std::vector<Ast*>::const_iterator it = vec->end();
     while(it != vec->begin()){
       --it;
+      if(dynamic_cast<ReturnNode*>(*it)){
+        double temp =  (*it)->eval();
+        instance->destroySymbolTable();
+        return temp;
+      }
       (*it)->eval();
     }
+
 
     // instance->setCurrentScope(prevScope);
     instance->destroySymbolTable();
@@ -69,11 +75,16 @@ double SuiteNode::eval() const {
     //     std::cout << func << std::endl;
     // }else
     if(!dynamic_cast<AstNumber*>(func))
-        func->eval();
+       return func->eval();
     else
         std::cout << "NameError: name '" << name << "'is not defined\n" ;
 
     return 0;
+  }
+
+  double ReturnNode::eval() const {
+    if(!left) return 0;
+    return left->eval();
   }
 
 

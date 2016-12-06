@@ -42,7 +42,7 @@
 
 %type<ast> opt_test test or_test and_test not_test comparison expr xor_expr and_expr shift_expr arith_expr term factor power atom pick_yield_expr_testlist_comp opt_yield_test testlist_comp
 
-%type<ast> testlist pick_yield_expr_testlist star_EQUAL print_stmt expr_stmt small_stmt simple_stmt stmt suite funcdef compound_stmt
+%type<ast> testlist pick_yield_expr_testlist star_EQUAL print_stmt expr_stmt small_stmt simple_stmt stmt suite funcdef compound_stmt flow_stmt return_stmt
 
 %type<v> plus_stmt
 
@@ -157,7 +157,6 @@ small_stmt // Used in: simple_stmt, small_stmt_STAR_OR_SEMI
 	| pass_stmt
 	{ $$ = new AstStr('I',"Ignore"); }
 	| flow_stmt
-	{ $$ = new AstStr('I',"Ignore"); }
 	| import_stmt
 	{ $$ = new AstStr('I',"Ignore"); }
 	| global_stmt
@@ -173,7 +172,7 @@ expr_stmt // Used in: small_stmt
 	  	if(err == 0 && $3 != NULL) {
 	  		Ast* ast;
 	  		switch($2){
-	  		case 0: ast = new BinaryAddNode($1,$3);//BinaryAddNode($1,$3); break;
+	  		case 0: ast = new BinaryAddNode($1,$3); break;
   			case 1: ast = new BinaryMinNode($1,$3); break;
 	  		case 2: ast = new BinaryMulNode($1,$3); break;
   			case 3: ast = new BinaryDivNode($1,$3); break;
@@ -263,10 +262,14 @@ pass_stmt // Used in: small_stmt
 	;
 flow_stmt // Used in: small_stmt
 	: break_stmt
+	{ $$ = new AstStr('I',"Ignore"); }
 	| continue_stmt
+	{ $$ = new AstStr('I',"Ignore"); }
 	| return_stmt
 	| raise_stmt
+	{ $$ = new AstStr('I',"Ignore"); }
 	| yield_stmt
+	{ $$ = new AstStr('I',"Ignore"); }
 	;
 break_stmt // Used in: flow_stmt
 	: BREAK
@@ -276,7 +279,11 @@ continue_stmt // Used in: flow_stmt
 	;
 return_stmt // Used in: flow_stmt
 	: RETURN testlist
+	{ 
+	  $$ = new ReturnNode($2);
+	}
 	| RETURN
+	{ $$ = NULL;}
 	;
 yield_stmt // Used in: flow_stmt
 	: yield_expr
